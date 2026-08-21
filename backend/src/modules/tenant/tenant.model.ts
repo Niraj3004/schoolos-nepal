@@ -14,6 +14,7 @@ export interface ITenant extends Document {
   principalName?: string;
   subscriptionStatus: 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'SUSPENDED';
   currentAcademicYearId?: mongoose.Types.ObjectId;
+  defaultGradingScale?: mongoose.Types.ObjectId;
 }
 
 const TenantSchema = new Schema<ITenant>({
@@ -29,7 +30,8 @@ const TenantSchema = new Schema<ITenant>({
   logoUrl: { type: String },
   principalName: { type: String },
   subscriptionStatus: { type: String, enum: ['PENDING', 'ACTIVE', 'EXPIRED', 'SUSPENDED'], default: 'PENDING' },
-  currentAcademicYearId: { type: Schema.Types.ObjectId, ref: 'AcademicYear' }
+  currentAcademicYearId: { type: Schema.Types.ObjectId, ref: 'AcademicYear' },
+  defaultGradingScale: { type: Schema.Types.ObjectId, ref: 'GradingScale' }
 }, { timestamps: true });
 
 TenantSchema.index({ code: 1 });

@@ -10,7 +10,8 @@ export const updateTenantSchema = z.object({
       city: z.string().optional(),
       district: z.string().optional(),
       province: z.string().optional(),
-    }).optional()
+    }).optional(),
+    defaultGradingScale: z.string().optional()
   })
 });
 
