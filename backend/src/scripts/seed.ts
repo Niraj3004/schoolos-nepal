@@ -14,7 +14,7 @@ import { Subject } from '../modules/academic/subject.model';
 import { SubjectAllocation } from '../modules/academic/subjectAllocation.model';
 import { Student } from '../modules/student/student.model';
 import { Parent } from '../modules/student/parent.model';
-import { PlatformPlan, TenantSubscription } from '../modules/saas/saas.model';
+import { PlatformPlan, TenantSubscription, PlatformSetting } from '../modules/saas/saas.model';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/schoolos';
 
@@ -66,6 +66,17 @@ const seedDB = async () => {
       isActive: true
     })) as any;
 
+    await PlatformSetting.deleteMany({});
+    await PlatformSetting.create({
+      bankName: 'Global IME Bank',
+      accountName: 'SchoolOS Nepal Pvt Ltd',
+      accountNumber: '1234567890123',
+      branch: 'Kathmandu',
+      qrCodeImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg',
+      supportEmail: 'support@schoolos.np',
+      supportPhone: '9800000001'
+    });
+
     // 3. Create Demo School
     const bmss = (await Tenant.create({
       name: 'Birgunj Model Secondary School',
@@ -82,7 +93,6 @@ const seedDB = async () => {
       billingCycle: 'ANNUAL',
       amountNPR: 50000,
       slipImageUrl: 'https://res.cloudinary.com/demo/image/upload/sample.jpg',
-      slipPublicId: 'sample',
       transactionReference: 'SEED-TXN-123',
       status: 'ACTIVE',
       startDate: new Date(),

@@ -34,6 +34,4 @@ const TenantSchema = new Schema<ITenant>({
   defaultGradingScale: { type: Schema.Types.ObjectId, ref: 'GradingScale' }
 }, { timestamps: true });
 
-TenantSchema.index({ code: 1 });
-
 export const Tenant = mongoose.model<ITenant>('Tenant', TenantSchema);

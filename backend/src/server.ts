@@ -25,8 +25,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(mongoSanitize());
-app.use(hpp());
+// app.use(mongoSanitize()); // Incompatible with Express 5 req.query getter
+// app.use(hpp()); // Incompatible with Express 5 req.query getter
 
 // Rate Limiting
 const limiter = rateLimit({

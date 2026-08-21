@@ -37,32 +37,29 @@ export const registerSchool = async (req: Request, res: Response) => {
   // 3. Upload Receipt
   const uploadResult = await uploadToCloudinary(req.file.buffer, 'schoolos/saas-receipts');
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     // A. Create Tenant
-    const tenant = await Tenant.create([{
+    const tenant = await Tenant.create({
       name: schoolName,
       code: schoolCode,
       address: schoolAddress,
       phone: schoolPhone,
       principalName: adminName,
       subscriptionStatus: 'PENDING'
-    }], { session }).then(res => res[0]);
+    });
 
     // B. Create School Admin
-    await User.create([{
+    await User.create({
       email: adminEmail.toLowerCase(),
       password: adminPassword,
       role: 'ADMIN',
       schoolId: tenant._id
-    }], { session });
+    });
 
     // C. Create Tenant Subscription
     const amountNPR = billingCycle === 'ANNUAL' ? plan.priceNPRPerYear : plan.priceNPRPerYear / 2;
 
-    const subscription = await TenantSubscription.create([{
+    const subscription = await TenantSubscription.create({
       schoolId: tenant._id,
       planId: plan._id,
       billingCycle,
@@ -70,15 +67,10 @@ export const registerSchool = async (req: Request, res: Response) => {
       slipImageUrl: uploadResult.secure_url,
       transactionReference,
       status: 'PENDING_APPROVAL'
-    }], { session }).then(res => res[0]);
-
-    await session.commitTransaction();
-    session.endSession();
+    });
 
     return successResponse(res, { tenant, subscription }, 'School registration submitted and pending verification', 201);
   } catch (error: any) {
-    await session.abortTransaction();
-    session.endSession();
     return errorResponse(res, 'INTERNAL_SERVER_ERROR', error.message, null, 500);
   }
 };
@@ -95,11 +87,8 @@ export const reviewRequest = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status, rejectionReason } = req.body;
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const subscription = await TenantSubscription.findById(id).session(session);
+    const subscription = await TenantSubscription.findById(id);
     if (!subscription) throw new Error('Subscription request not found');
     if (subscription.status !== 'PENDING_APPROVAL') throw new Error('Subscription is not pending approval');
 
@@ -114,21 +103,16 @@ export const reviewRequest = async (req: Request, res: Response) => {
       subscription.startDate = now;
       subscription.endDate = end;
 
-      await Tenant.findByIdAndUpdate(subscription.schoolId, { subscriptionStatus: 'ACTIVE' }, { session });
+      await Tenant.findByIdAndUpdate(subscription.schoolId, { subscriptionStatus: 'ACTIVE' });
     } else if (status === 'REJECTED') {
       subscription.rejectionReason = rejectionReason || 'Payment rejected by SuperAdmin';
-      await Tenant.findByIdAndUpdate(subscription.schoolId, { subscriptionStatus: 'SUSPENDED' }, { session });
+      await Tenant.findByIdAndUpdate(subscription.schoolId, { subscriptionStatus: 'SUSPENDED' });
     }
 
-    await subscription.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
+    await subscription.save();
 
     return successResponse(res, subscription, `Subscription request ${status.toLowerCase()}`);
   } catch (error: any) {
-    await session.abortTransaction();
-    session.endSession();
     return errorResponse(res, 'BAD_REQUEST', error.message, null, 400);
   }
 };
