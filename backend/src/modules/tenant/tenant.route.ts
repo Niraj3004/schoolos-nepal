@@ -13,13 +13,14 @@ import { updateTenantSchema, createAcademicYearSchema, createTermSchema, createH
 import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
 import { requireTenant } from '../../middlewares/tenant';
+import { requireActiveTenant } from '../../middlewares/tenantActive';
 import { upload } from '../../middlewares/upload';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
 
 const router = Router();
 
 // All tenant settings require authentication and tenant context
-router.use(authenticate, requireTenant);
+router.use(authenticate, requireTenant, requireActiveTenant);
 
 router.get('/settings', requireRole(['ADMIN', 'TEACHER']), asyncErrorHandler(getSettings));
 router.patch('/settings', requireRole(['ADMIN']), upload.single('logo'), validate(updateTenantSchema), asyncErrorHandler(updateSettings));

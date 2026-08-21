@@ -8,10 +8,12 @@ import attendanceRoutes from '../modules/attendance/attendance.route';
 import examRoutes from '../modules/exam/exam.route';
 import homeworkRoutes from '../modules/homework/homework.route';
 import financeRoutes from '../modules/finance/finance.route';
+import saasRoutes from '../modules/saas/saas.route';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
+router.use('/saas', saasRoutes);
 router.use('/tenant', tenantRoutes);
 router.use('/academic', academicRoutes);
 router.use('/students', studentRoutes);

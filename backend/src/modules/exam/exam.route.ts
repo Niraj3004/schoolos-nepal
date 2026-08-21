@@ -5,11 +5,12 @@ import { createExamSchema, bulkMarkEntrySchema } from './exam.validation';
 import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
 import { requireTenant } from '../../middlewares/tenant';
+import { requireActiveTenant } from '../../middlewares/tenantActive';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
 
 const router = Router();
 
-router.use(authenticate, requireTenant);
+router.use(authenticate, requireTenant, requireActiveTenant);
 
 // Master Exam
 router.post('/', requireRole(['ADMIN']), validate(createExamSchema), asyncErrorHandler(createExam));

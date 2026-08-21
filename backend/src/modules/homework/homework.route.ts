@@ -6,12 +6,13 @@ import { createHomeworkSchema, evaluateSubmissionSchema, createMaterialSchema } 
 import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
 import { requireTenant } from '../../middlewares/tenant';
+import { requireActiveTenant } from '../../middlewares/tenantActive';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
 import { upload } from '../../middlewares/upload';
 
 const router = Router();
 
-router.use(authenticate, requireTenant);
+router.use(authenticate, requireTenant, requireActiveTenant);
 
 // Homework Master
 router.post('/', requireRole(['ADMIN', 'TEACHER']), upload.array('attachments', 5), validate(createHomeworkSchema), asyncErrorHandler(createHomework));
