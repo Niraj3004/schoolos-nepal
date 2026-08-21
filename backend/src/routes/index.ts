@@ -11,6 +11,7 @@ import financeRoutes from '../modules/finance/finance.route';
 import saasRoutes from '../modules/saas/saas.route';
 import communicationRoutes from '../modules/communication/communication.route';
 import analyticsRoutes from '../modules/analytics/analytics.route';
+import searchRoutes from '../modules/search/search.route';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/homework', homeworkRoutes);
 router.use('/finance', financeRoutes);
 router.use('/communication', communicationRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/search', searchRoutes);
 
 export default router;

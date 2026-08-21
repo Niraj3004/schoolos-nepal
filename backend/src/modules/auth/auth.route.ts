@@ -4,10 +4,17 @@ import { validate } from '../../middlewares/validate';
 import { loginSchema } from './auth.validation';
 import { authenticate } from '../../middlewares/auth';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
+import rateLimit from 'express-rate-limit';
 
 const router = Router();
 
-router.post('/login', validate(loginSchema), asyncErrorHandler(login));
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 login requests per windowMs
+  message: 'Too many login attempts, please try again later'
+});
+
+router.post('/login', loginLimiter, validate(loginSchema), asyncErrorHandler(login));
 router.post('/refresh', asyncErrorHandler(refresh));
 router.post('/logout', asyncErrorHandler(logout));
 router.get('/me', authenticate, asyncErrorHandler(getMe));
