@@ -3,6 +3,7 @@ import { getAdminDashboardMetrics, getTeacherWorkloadMetrics } from './analytics
 import { AuditLog } from './auditLog.model';
 import { AcademicYear } from '../academic/academicYear.model';
 import { successResponse, errorResponse } from '../../utils/response';
+import mongoose from 'mongoose';
 
 const getNepaliDateString = (): string => {
   // Normally we would use the bsToAd/adToBs utility here to get today's BS date
