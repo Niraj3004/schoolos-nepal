@@ -9,6 +9,7 @@ import examRoutes from '../modules/exam/exam.route';
 import homeworkRoutes from '../modules/homework/homework.route';
 import financeRoutes from '../modules/finance/finance.route';
 import saasRoutes from '../modules/saas/saas.route';
+import communicationRoutes from '../modules/communication/communication.route';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/attendance', attendanceRoutes);
 router.use('/exams', examRoutes);
 router.use('/homework', homeworkRoutes);
 router.use('/finance', financeRoutes);
+router.use('/communication', communicationRoutes);
 
 export default router;
