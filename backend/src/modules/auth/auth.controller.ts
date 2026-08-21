@@ -38,7 +38,7 @@ export const login = async (req: Request, res: Response) => {
     if (!tenant) {
       return errorResponse(res, 'TENANT_NOT_FOUND', 'Associated school not found', null, 404);
     }
-    if (tenant.status !== 'ACTIVE') {
+    if (tenant.subscriptionStatus !== 'ACTIVE') {
       return errorResponse(res, 'TENANT_SUSPENDED', 'Your school subscription is suspended or unapproved', null, 403);
     }
   }
