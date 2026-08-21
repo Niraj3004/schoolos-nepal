@@ -1,9 +1,40 @@
 import { Request, Response } from 'express';
+import { AcademicYear } from './academicYear.model';
+import { Term } from './term.model';
 import { Class } from './class.model';
 import { Section } from './section.model';
 import { Subject } from './subject.model';
 import { SubjectAllocation } from './subjectAllocation.model';
 import { successResponse, errorResponse } from '../../utils/response';
+
+export const createAcademicYear = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  
+  if (req.body.isCurrent) {
+    await AcademicYear.updateMany({ schoolId }, { isCurrent: false });
+  }
+
+  const academicYear = await AcademicYear.create({ ...req.body, schoolId });
+  return successResponse(res, academicYear, 'Academic Year created successfully', 201);
+};
+
+export const getAcademicYears = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const academicYears = await AcademicYear.find({ schoolId }).sort({ createdAt: -1 });
+  return successResponse(res, academicYears, 'Academic Years retrieved');
+};
+
+export const createTerm = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const term = await Term.create({ ...req.body, schoolId });
+  return successResponse(res, term, 'Term created successfully', 201);
+};
+
+export const getTerms = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const terms = await Term.find({ schoolId }).sort({ termOrder: 1 });
+  return successResponse(res, terms, 'Terms retrieved');
+};
 
 export const createClass = async (req: Request, res: Response) => {
   const schoolId = req.tenant;

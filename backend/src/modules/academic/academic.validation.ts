@@ -1,5 +1,23 @@
 import { z } from 'zod';
 
+export const createAcademicYearSchema = z.object({
+  body: z.object({
+    name: z.string(),
+    startDateBS: z.string(),
+    endDateBS: z.string(),
+    isCurrent: z.boolean().optional()
+  })
+});
+
+export const createTermSchema = z.object({
+  body: z.object({
+    academicYearId: z.string(),
+    name: z.string(),
+    termOrder: z.number().int(),
+    startDateBS: z.string(),
+    endDateBS: z.string()
+  })
+});
 export const createClassSchema = z.object({
   body: z.object({
     name: z.string(),

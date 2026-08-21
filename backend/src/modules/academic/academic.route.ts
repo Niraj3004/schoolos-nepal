@@ -7,7 +7,11 @@ import {
   createSubject, 
   getSubjects, 
   allocateSubject, 
-  getMyClasses 
+  getMyClasses,
+  createAcademicYear,
+  getAcademicYears,
+  createTerm,
+  getTerms
 } from './academic.controller';
 import { validate } from '../../middlewares/validate';
 import { 
@@ -15,7 +19,9 @@ import {
   createSectionSchema, 
   updateSectionSchema, 
   createSubjectSchema, 
-  allocateSubjectSchema 
+  allocateSubjectSchema,
+  createAcademicYearSchema,
+  createTermSchema
 } from './academic.validation';
 import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
@@ -23,9 +29,18 @@ import { requireTenant } from '../../middlewares/tenant';
 import { requireActiveTenant } from '../../middlewares/tenantActive';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
 
+
 const router = Router();
 
 router.use(authenticate, requireTenant, requireActiveTenant);
+
+// Academic Years
+router.post('/academic-years', requireRole(['ADMIN']), validate(createAcademicYearSchema), asyncErrorHandler(createAcademicYear));
+router.get('/academic-years', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHandler(getAcademicYears));
+
+// Terms
+router.post('/terms', requireRole(['ADMIN']), validate(createTermSchema), asyncErrorHandler(createTerm));
+router.get('/terms', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHandler(getTerms));
 
 // Classes
 router.post('/classes', requireRole(['ADMIN']), validate(createClassSchema), asyncErrorHandler(createClass));
