@@ -119,7 +119,7 @@ export const uploadSlip = async (req: Request, res: Response) => {
 
   const slip = await FeePaymentSlip.create({
     schoolId,
-    invoiceId,
+    invoiceId: invoiceId as any,
     studentId: invoice.studentId,
     uploadedByParentId: parent._id,
     amountPaid: Number(amountPaid),
