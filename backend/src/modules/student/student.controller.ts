@@ -194,8 +194,10 @@ export const bulkEnroll = async (req: Request, res: Response) => {
       }], { session }).then(res => res[0]);
 
       // 5. Link Bi-directionally
-      parentRecord!.children.push(studentRecord._id as any);
-      await parentRecord!.save({ session });
+      if (parentRecord) {
+        parentRecord.children.push(studentRecord._id as any);
+        await parentRecord.save({ session });
+      }
       
       enrolledStudents.push(studentRecord);
     }
