@@ -47,9 +47,3 @@ Instead of relying on expensive payment gateways, SchoolOS introduces a highly p
 ```bash
 git clone [https://github.com/yourusername/schoolos-nepal.git](https://github.com/yourusername/schoolos-nepal.git)
 cd schoolos-nepal
-
-2. Backend Setup
-Bash
-cd apps/api
-npm install
-Create a .env file in apps/api:
