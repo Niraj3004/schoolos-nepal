@@ -5,6 +5,7 @@ import { Student } from '../student/student.model';
 import { Parent } from '../student/parent.model';
 import { uploadToCloudinary } from '../../utils/cloudinaryStream';
 import { successResponse, errorResponse } from '../../utils/response';
+import { logAudit } from '../../utils/auditLogger';
 
 export const createFeeHead = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
@@ -185,7 +186,14 @@ export const verifySlip = async (req: Request, res: Response) => {
     await session.commitTransaction();
     session.endSession();
 
-    return successResponse(res, slip, `Payment slip ${status.toLowerCase()} successfully`);
+    logAudit(req, 'FEE_SLIP_VERIFIED', { 
+      invoiceId: invoice._id, 
+      slipId: slip._id, 
+      status, 
+      amountVerified: slip.amountPaid 
+    });
+
+    return successResponse(res, { invoice, slip }, `Payment slip ${status.toLowerCase()} successfully`);
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();

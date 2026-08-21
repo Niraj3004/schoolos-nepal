@@ -7,6 +7,7 @@ import { Tenant } from '../tenant/tenant.model';
 import { AcademicYear } from '../academic/academicYear.model';
 import { uploadToCloudinary } from '../../utils/cloudinaryStream';
 import { successResponse, errorResponse } from '../../utils/response';
+import { logAudit } from '../../utils/auditLogger';
 
 export const enrollStudent = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
@@ -100,6 +101,11 @@ export const enrollStudent = async (req: Request, res: Response) => {
 
     await session.commitTransaction();
     session.endSession();
+
+    logAudit(req, 'STUDENT_ENROLLED', { 
+      studentId: studentRecord._id, 
+      admissionNumber: studentRecord.admissionNumber 
+    });
 
     return successResponse(res, studentRecord, 'Student enrolled successfully', 201);
   } catch (error: any) {
@@ -204,6 +210,10 @@ export const bulkEnroll = async (req: Request, res: Response) => {
 
     await session.commitTransaction();
     session.endSession();
+
+    logAudit(req, 'STUDENT_BULK_ENROLLED', { 
+      count: enrolledStudents.length 
+    });
 
     return successResponse(res, { count: enrolledStudents.length, enrolledStudents }, 'Bulk enrollment successful', 201);
   } catch (error: any) {
