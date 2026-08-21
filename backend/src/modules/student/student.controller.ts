@@ -110,8 +110,105 @@ export const enrollStudent = async (req: Request, res: Response) => {
 };
 
 export const bulkEnroll = async (req: Request, res: Response) => {
-  // Skeleton logic for bulk enroll based on iterating over enrollStudent logic internally
-  return successResponse(res, null, 'Bulk enroll placeholder - to be implemented');
+  const schoolId = req.tenant;
+  const { students } = req.body; // Array of student payloads
+  
+  if (!Array.isArray(students) || students.length === 0) {
+    return errorResponse(res, 'BAD_REQUEST', 'Students array is required', null, 400);
+  }
+
+  const tenant = await Tenant.findById(schoolId);
+  if (!tenant) return errorResponse(res, 'NOT_FOUND', 'Tenant not found', null, 404);
+  
+  const currentYear = await AcademicYear.findOne({ schoolId, isCurrent: true });
+  if (!currentYear) return errorResponse(res, 'BAD_REQUEST', 'No active academic year found for enrollment', null, 400);
+
+  const subdomain = tenant.code;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const enrolledStudents = [];
+
+    for (const payload of students) {
+      // 1. Find or Create Parent User & Parent Record
+      let parentUser = await User.findOne({ email: `${payload.primaryPhone}@${subdomain}.schoolos.com` }).session(session);
+      if (!parentUser) {
+        parentUser = await User.create([{
+          email: `${payload.primaryPhone}@${subdomain}.schoolos.com`,
+          password: 'Password123!',
+          role: 'PARENT',
+          schoolId
+        }], { session }).then(res => res[0]);
+      }
+
+      let parentRecord = await Parent.findOne({ schoolId, primaryPhone: payload.primaryPhone }).session(session);
+      if (!parentRecord) {
+        parentRecord = await Parent.create([{
+          schoolId,
+          userId: parentUser!._id,
+          fatherName: payload.fatherName,
+          motherName: payload.motherName,
+          primaryPhone: payload.primaryPhone,
+          secondaryPhone: payload.secondaryPhone,
+          occupation: payload.parentOccupation,
+          address: payload.parentAddress,
+          children: []
+        }], { session }).then(res => res[0]);
+      }
+
+      // 2. Check duplicate admission number
+      const existingStudent = await Student.findOne({ schoolId, admissionNumber: payload.admissionNumber }).session(session);
+      if (existingStudent) throw new Error(`Admission number ${payload.admissionNumber} already exists`);
+
+      // 3. Create Student User
+      const studentEmail = `${payload.admissionNumber}@${subdomain}.schoolos.com`.toLowerCase();
+      const studentUser = await User.create([{
+        email: studentEmail,
+        password: payload.dobBS || 'Password123!',
+        role: 'STUDENT',
+        schoolId
+      }], { session }).then(res => res[0]);
+
+      // 4. Create Student Record
+      const studentRecord = await Student.create([{
+        schoolId,
+        userId: studentUser._id,
+        admissionNumber: payload.admissionNumber,
+        rollNumber: payload.rollNumber,
+        currentClassId: payload.currentClassId,
+        currentSectionId: payload.currentSectionId,
+        academicYearId: currentYear._id,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        dobBS: payload.dobBS,
+        dobAD: payload.dobAD,
+        gender: payload.gender,
+        bloodGroup: payload.bloodGroup,
+        address: payload.address,
+        houseId: payload.houseId,
+        emergencyContact: payload.emergencyContact,
+        parentId: parentRecord._id,
+        status: 'ENROLLED'
+      }], { session }).then(res => res[0]);
+
+      // 5. Link Bi-directionally
+      parentRecord!.children.push(studentRecord._id as any);
+      await parentRecord!.save({ session });
+      
+      enrolledStudents.push(studentRecord);
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return successResponse(res, { count: enrolledStudents.length, enrolledStudents }, 'Bulk enrollment successful', 201);
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    return errorResponse(res, 'BULK_ENROLLMENT_FAILED', error.message, null, 400);
+  }
 };
 
 export const getStudents = async (req: Request, res: Response) => {
