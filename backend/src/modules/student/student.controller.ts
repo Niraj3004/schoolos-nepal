@@ -189,7 +189,7 @@ export const bulkEnroll = async (req: Request, res: Response) => {
         address: payload.address,
         houseId: payload.houseId,
         emergencyContact: payload.emergencyContact,
-        parentId: parentRecord._id,
+        parentId: parentRecord!._id,
         status: 'ENROLLED'
       }], { session }).then(res => res[0]);
 
