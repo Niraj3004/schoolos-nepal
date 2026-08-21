@@ -6,6 +6,7 @@ import studentRoutes from '../modules/student/student.route';
 import parentRoutes from '../modules/student/parent.route';
 import attendanceRoutes from '../modules/attendance/attendance.route';
 import examRoutes from '../modules/exam/exam.route';
+import homeworkRoutes from '../modules/homework/homework.route';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/students', studentRoutes);
 router.use('/parents', parentRoutes);
 router.use('/attendance', attendanceRoutes);
 router.use('/exams', examRoutes);
+router.use('/homework', homeworkRoutes);
 
 export default router;
