@@ -107,7 +107,7 @@ export const uploadSlip = async (req: Request, res: Response) => {
 
   if (!req.file) return errorResponse(res, 'BAD_REQUEST', 'Payment slip receipt image is required', null, 400);
 
-  const invoice = await StudentInvoice.findOne({ _id: invoiceId, schoolId });
+  const invoice = await StudentInvoice.findOne({ _id: invoiceId as any, schoolId });
   if (!invoice) return errorResponse(res, 'NOT_FOUND', 'Invoice not found', null, 404);
 
   // Verify Parent owns this student
@@ -156,7 +156,7 @@ export const verifySlip = async (req: Request, res: Response) => {
   session.startTransaction();
 
   try {
-    const slip = await FeePaymentSlip.findOne({ _id: id, schoolId, status: 'PENDING' }).session(session);
+    const slip = await FeePaymentSlip.findOne({ _id: id as any, schoolId, status: 'PENDING' }).session(session);
     if (!slip) throw new Error('Pending payment slip not found');
 
     const invoice = await StudentInvoice.findOne({ _id: slip.invoiceId, schoolId }).session(session);
