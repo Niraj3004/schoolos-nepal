@@ -9,7 +9,7 @@ import {
   getHouses 
 } from './tenant.controller';
 import { validate } from '../../middlewares/validate';
-import { updateTenantSchema, createAcademicYearSchema, createTermSchema, createHouseSchema } from './tenant.schema';
+import { updateTenantSchema, createAcademicYearSchema, createTermSchema, createHouseSchema } from './tenant.validation';
 import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
 import { requireTenant } from '../../middlewares/tenant';

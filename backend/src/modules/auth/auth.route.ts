@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { login, refresh, logout, getMe } from './auth.controller';
 import { validate } from '../../middlewares/validate';
-import { loginSchema } from './auth.schema';
+import { loginSchema } from './auth.validation';
 import { authenticate } from '../../middlewares/auth';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
 
