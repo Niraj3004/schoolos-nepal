@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Homework } from './homework.model';
 import { HomeworkSubmission } from './homeworkSubmission.model';
 import { Student } from '../student/student.model';
-import { streamToCloudinary, deleteFromCloudinary } from '../../utils/cloudinaryStream';
+import { uploadToCloudinary, deleteFromCloudinary } from '../../utils/cloudinaryStream';
 import { successResponse, errorResponse } from '../../utils/response';
 
 export const createHomework = async (req: Request, res: Response) => {
@@ -13,9 +13,9 @@ export const createHomework = async (req: Request, res: Response) => {
 
   // Handle Multiple Files
   if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-    const uploadPromises = req.files.map(file => streamToCloudinary(file.buffer, 'schoolos/homework'));
+    const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer, 'schoolos/homework'));
     const results = await Promise.all(uploadPromises);
-    attachmentUrls = results.map(r => r.secure_url);
+    attachmentUrls = results.map((r: any) => r.secure_url);
   }
 
   const homework = await Homework.create({
@@ -49,7 +49,11 @@ export const getClassHomework = async (req: Request, res: Response) => {
     return errorResponse(res, 'BAD_REQUEST', 'classId and sectionId are required', null, 400);
   }
 
-  const homework = await Homework.find({ schoolId, classId, sectionId })
+  const query: any = { schoolId };
+  if (classId) query.classId = classId;
+  if (sectionId) query.sectionId = sectionId;
+
+  const homework = await Homework.find(query)
     .populate('subjectId', 'name code')
     .populate('teacherId', 'name')
     .sort({ dueDateAD: 1 });
@@ -85,9 +89,9 @@ export const submitHomework = async (req: Request, res: Response) => {
   let fileUrls: string[] = [];
 
   if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-    const uploadPromises = req.files.map(file => streamToCloudinary(file.buffer, 'schoolos/submissions'));
+    const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer, 'schoolos/submissions'));
     const results = await Promise.all(uploadPromises);
-    fileUrls = results.map(r => r.secure_url);
+    fileUrls = results.map((r: any) => r.secure_url);
   }
 
   const submission = await HomeworkSubmission.findOneAndUpdate(

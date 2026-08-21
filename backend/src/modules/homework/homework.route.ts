@@ -7,7 +7,7 @@ import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
 import { requireTenant } from '../../middlewares/tenant';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
-import upload from '../../middlewares/upload';
+import { upload } from '../../middlewares/upload';
 
 const router = Router();
 

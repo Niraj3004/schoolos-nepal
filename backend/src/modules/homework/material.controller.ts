@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { LearningMaterial } from './learningMaterial.model';
-import { streamToCloudinary, deleteFromCloudinary } from '../../utils/cloudinaryStream';
+import { uploadToCloudinary, deleteFromCloudinary } from '../../utils/cloudinaryStream';
 import { successResponse, errorResponse } from '../../utils/response';
 import { Student } from '../student/student.model';
 
@@ -12,7 +12,7 @@ export const createMaterial = async (req: Request, res: Response) => {
     return errorResponse(res, 'BAD_REQUEST', 'File attachment is required', null, 400);
   }
 
-  const uploadResult = await streamToCloudinary(req.file.buffer, 'schoolos/materials');
+  const uploadResult = await uploadToCloudinary(req.file.buffer, 'schoolos/materials');
 
   const material = await LearningMaterial.create({
     ...req.body,
