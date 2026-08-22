@@ -23,7 +23,7 @@ const roleNavigation: Record<string, { name: string; href: string; icon: React.F
     { name: 'Students', href: '/admin/students', icon: Users },
     { name: 'Teachers', href: '/admin/teachers', icon: Users },
     { name: 'Attendance', href: '/admin/attendance', icon: Calendar },
-    { name: 'Classes', href: '/admin/classes', icon: BookOpen },
+    { name: 'Academics', href: '/admin/academic', icon: BookOpen },
     { name: 'Finance', href: '/admin/finance', icon: CreditCard },
     { name: 'Notice Board', href: '/notices', icon: MessageSquare },
   ],

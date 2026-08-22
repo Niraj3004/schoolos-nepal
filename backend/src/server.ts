@@ -19,7 +19,23 @@ const app = express();
 // Security Middlewares
 app.use(helmet());
 app.use(cors({
-  origin: env.CLIENT_URL,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (origin === env.CLIENT_URL) return callback(null, true);
+
+    try {
+      const clientUrlObj = new URL(env.CLIENT_URL);
+      const originObj = new URL(origin);
+      
+      if (originObj.hostname.endsWith('.' + clientUrlObj.hostname) && originObj.port === clientUrlObj.port) {
+        return callback(null, true);
+      }
+    } catch (e) {}
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 app.use(express.json());

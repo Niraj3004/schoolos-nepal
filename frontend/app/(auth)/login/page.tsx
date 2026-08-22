@@ -27,6 +27,19 @@ export default function LoginPage() {
   
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [subdomain, setSubdomain] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      if (host !== 'localhost' && host !== '127.0.0.1') {
+        const parts = host.split('.');
+        if (parts.length > 1) {
+          setSubdomain(parts[0].toUpperCase());
+        }
+      }
+    }
+  }, []);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -83,7 +96,9 @@ export default function LoginPage() {
         <Link href="/" className="inline-block text-3xl font-extrabold text-primary tracking-tighter">
           School<span className="text-warning">OS</span>
         </Link>
-        <p className="text-gray-500 mt-2">Sign in to your portal</p>
+        <p className="text-gray-500 mt-2">
+          {subdomain ? `Sign in to ${subdomain} Portal` : 'Sign in to your portal'}
+        </p>
       </div>
 
       <Card className="w-full max-w-md shadow-xl border-none">

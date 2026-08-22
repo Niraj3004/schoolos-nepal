@@ -14,6 +14,7 @@ import { Subject } from '../modules/academic/subject.model';
 import { SubjectAllocation } from '../modules/academic/subjectAllocation.model';
 import { Student } from '../modules/student/student.model';
 import { Parent } from '../modules/student/parent.model';
+import { Staff } from '../modules/staff/staff.model';
 import { PlatformPlan, TenantSubscription, PlatformSetting } from '../modules/saas/saas.model';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/schoolos';
@@ -84,7 +85,8 @@ const seedDB = async () => {
       address: { city: 'Birgunj', district: 'Parsa', province: 'Madhesh' },
       phone: '9800000000',
       email: 'info@bmss.edu.np',
-      principalName: 'Ram Kumar Sharma'
+      principalName: 'Ram Kumar Sharma',
+      subscriptionStatus: 'ACTIVE'
     })) as any;
 
     await TenantSubscription.create({
@@ -126,6 +128,18 @@ const seedDB = async () => {
       password: 'SchoolPass123',
       role: 'TEACHER',
       isActive: true
+    })) as any;
+
+    const demoTeacherStaff = (await Staff.create({
+      schoolId: bmss._id,
+      userId: demoTeacher._id,
+      employeeId: 'EMP-T-001',
+      firstName: 'Shyam',
+      lastName: 'Sir',
+      department: 'ACADEMIC',
+      designation: 'Senior Teacher',
+      phone: '9840001111',
+      status: 'ACTIVE'
     })) as any;
 
     // 7. Create Class, Section, Subjects

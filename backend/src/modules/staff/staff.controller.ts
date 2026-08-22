@@ -38,22 +38,19 @@ export const createTeacher = async (req: Request, res: Response) => {
   if (!tenant) return errorResponse(res, 'NOT_FOUND', 'Tenant not found', null, 404);
   const subdomain = tenant.code;
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const existingStaff = await Staff.findOne({ schoolId, employeeId: payload.employeeId }).session(session);
+    const existingStaff = await Staff.findOne({ schoolId, employeeId: payload.employeeId });
     if (existingStaff) throw new Error(`Employee ID ${payload.employeeId} already exists`);
 
     const teacherEmail = `${payload.employeeId}@${subdomain}.schoolos.com`.toLowerCase();
-    const teacherUser = await User.create([{
+    const teacherUser = await User.create({
       email: teacherEmail,
       password: payload.phone || 'Teacher123!',
       role: 'TEACHER',
       schoolId
-    }], { session }).then(res => res[0]);
+    });
 
-    const staffRecord = await Staff.create([{
+    const staffRecord = await Staff.create({
       schoolId,
       userId: teacherUser._id,
       employeeId: payload.employeeId,
@@ -65,15 +62,10 @@ export const createTeacher = async (req: Request, res: Response) => {
       address: payload.address,
       joinDateBS: payload.joinDateBS,
       status: 'ACTIVE'
-    }], { session }).then(res => res[0]);
-
-    await session.commitTransaction();
-    session.endSession();
+    });
 
     return successResponse(res, staffRecord, 'Teacher created successfully', 201);
   } catch (error: any) {
-    await session.abortTransaction();
-    session.endSession();
     return errorResponse(res, 'TEACHER_CREATION_FAILED', error.message, null, 400);
   }
 };

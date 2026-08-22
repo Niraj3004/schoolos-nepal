@@ -42,7 +42,7 @@ export default function TeacherAttendancePage() {
     queryFn: () => api.get(`/students?classId=${classId}&sectionId=${sectionId}&limit=100&status=ENROLLED`),
     enabled: !!classId && !!sectionId,
   });
-  const students = (studentsRes as any)?.data?.students || [];
+  const students = React.useMemo(() => (studentsRes as any)?.data?.students || [], [studentsRes]);
 
   // Fetch existing attendance for the day
   const { data: existingRes, isLoading: isLoadingExisting } = useQuery({

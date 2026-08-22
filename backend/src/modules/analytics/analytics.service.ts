@@ -13,6 +13,7 @@ export const getAdminDashboardMetrics = async (schoolId: mongoose.Types.ObjectId
   // 1. Demographics
   const studentCount = await Student.countDocuments({ schoolId, academicYearId: currentAcademicYearId, status: 'ENROLLED' });
   const teacherCount = await User.countDocuments({ schoolId, role: 'TEACHER', isActive: true });
+  const parentCount = await User.countDocuments({ schoolId, role: 'PARENT', isActive: true });
   
   // 2. Financial Liquidity
   const financialAggregation = await StudentInvoice.aggregate([
@@ -60,6 +61,7 @@ export const getAdminDashboardMetrics = async (schoolId: mongoose.Types.ObjectId
     demographics: {
       totalStudents: studentCount,
       totalTeachers: teacherCount,
+      totalParents: parentCount,
       studentTeacherRatio: teacherCount > 0 ? (studentCount / teacherCount).toFixed(2) : 'N/A'
     },
     finance: {

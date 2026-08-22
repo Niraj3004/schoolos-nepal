@@ -76,10 +76,11 @@ export const registerSchool = async (req: Request, res: Response) => {
 };
 
 export const getAdminRequests = async (req: Request, res: Response) => {
-  const requests = await TenantSubscription.find({ status: 'PENDING_APPROVAL' })
+  const requests = await TenantSubscription.find()
+    .sort({ createdAt: -1 })
     .populate('schoolId')
     .populate('planId');
-  return successResponse(res, requests, 'Pending subscription requests retrieved');
+  return successResponse(res, requests, 'Subscription requests retrieved');
 };
 
 export const reviewRequest = async (req: Request, res: Response) => {

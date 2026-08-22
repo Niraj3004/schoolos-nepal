@@ -27,7 +27,7 @@ export default function NoticesPage() {
     queryFn: () => api.get('/communication/notices'),
   });
   
-  const notices = (noticesRes as any)?.data || [];
+  const notices = (noticesRes as any)?.data?.notices || [];
 
   // Clear toast
   useEffect(() => {

@@ -18,14 +18,18 @@ const generateTokens = (user: any) => {
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  console.log(`[LOGIN ATTEMPT] email: "${email}", password: "${password}"`);
 
   const user = await User.findOne({ email }).select('+password +refreshToken');
   if (!user) {
+    console.log(`[LOGIN FAILED] User not found for email: "${email}"`);
     return errorResponse(res, 'UNAUTHORIZED', 'Invalid credentials', null, 401);
   }
 
   const isMatch = await user.comparePassword(password);
+  console.log(`[LOGIN ATTEMPT] isMatch: ${isMatch}`);
   if (!isMatch) {
+    console.log(`[LOGIN FAILED] Password mismatch for email: "${email}"`);
     return errorResponse(res, 'UNAUTHORIZED', 'Invalid credentials', null, 401);
   }
 

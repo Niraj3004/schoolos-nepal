@@ -11,21 +11,21 @@ export default function AuthenticatedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, accessToken } = useAuthStore();
+  const { user, accessToken, _hasHydrated } = useAuthStore();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Wait until Zustand has hydrated from localStorage
+    if (!_hasHydrated) return;
     
     // Redirect to login if not authenticated
     if (!accessToken || !user) {
       router.push('/login');
     }
-  }, [accessToken, user, router]);
+  }, [accessToken, user, router, _hasHydrated]);
 
-  // Prevent hydration mismatch and flash of protected content
-  if (!mounted) {
+  // Prevent hydration mismatch and flash of protected content while Zustand loads
+  if (!_hasHydrated) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-gray-50">
         <Spinner size="lg" className="text-primary" />
