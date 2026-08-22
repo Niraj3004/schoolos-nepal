@@ -39,10 +39,10 @@ export default function AdminFinancePage() {
   // Fetch active academic year
   const { data: academicYearRes } = useQuery({
     queryKey: ['activeAcademicYear'],
-    queryFn: () => api.get('/academic/years?current=true'),
+    queryFn: () => api.get('/academic/academic-years'),
   });
   const academicYears = (academicYearRes as any)?.data;
-  const activeYear = Array.isArray(academicYears) ? academicYears[0] : academicYears;
+  const activeYear = Array.isArray(academicYears) ? academicYears.find((y: any) => y.isCurrent) : academicYears;
 
   // Fetch invoices
   const queryParams = new URLSearchParams();

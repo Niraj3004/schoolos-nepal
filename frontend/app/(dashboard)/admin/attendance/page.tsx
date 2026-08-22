@@ -88,7 +88,7 @@ export default function AdminAttendancePage() {
   // Fetch active academic year
   const { data: academicYearRes } = useQuery({
     queryKey: ['activeAcademicYear'],
-    queryFn: () => api.get('/academic/years?current=true'),
+    queryFn: () => api.get('/academic/academic-years'),
   });
 
   // Submit
@@ -104,7 +104,7 @@ export default function AdminAttendancePage() {
 
   const handleSubmit = () => {
     const academicYears = (academicYearRes as any)?.data;
-    const activeYear = Array.isArray(academicYears) ? academicYears[0] : academicYears;
+    const activeYear = Array.isArray(academicYears) ? academicYears.find((y: any) => y.isCurrent) : academicYears;
 
     if (!activeYear?._id) {
       setToast({ title: 'No active academic year', description: 'Please set an active academic year first.', variant: 'error' });

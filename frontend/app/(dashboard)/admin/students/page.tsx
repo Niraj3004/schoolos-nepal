@@ -414,11 +414,7 @@ function EnrollStudentModal({ isOpen, onClose, classes, onSuccess }: EnrollModal
         formData.append('avatar', avatarFile);
       }
 
-      await apiFetch('/students/enroll', {
-        method: 'POST',
-        body: formData,
-        // Let browser set Content-Type with boundary
-      });
+      await api.post('/students/enroll', formData);
 
       // Reset
       setStep(1);

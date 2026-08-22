@@ -6,16 +6,27 @@ import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
-import { Users, BookOpen, UserCheck, CreditCard, ChevronLeft, ChevronRight, Activity, PieChart as PieChartIcon } from 'lucide-react';
+import { Users, BookOpen, UserCheck, CreditCard, ChevronLeft, ChevronRight, Activity, PieChart as PieChartIcon, Bell, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   AreaChart, Area, PieChart, Pie, Cell
 } from 'recharts';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday } from 'date-fns';
 import toast from 'react-hot-toast';
-import { Send } from 'lucide-react';
+import { Send, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 const COLORS = ['#10b981', '#3b82f6', '#f4b400', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6', '#6366f1'];
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } }
+};
 
 export default function AdminDashboard() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -26,7 +37,7 @@ export default function AdminDashboard() {
     try {
       setSendingFees(true);
       const res: any = await api.post('/communication/reminders/fees');
-      toast.success(res.data?.message || 'Fee reminders sent');
+      toast.success(res.data?.message || 'Fee reminders sent successfully');
     } catch (e) {
       toast.error('Failed to send fee reminders');
     } finally {
@@ -38,7 +49,7 @@ export default function AdminDashboard() {
     try {
       setSendingAbsences(true);
       const res: any = await api.post('/communication/reminders/absences');
-      toast.success(res.data?.message || 'Absence reminders sent');
+      toast.success(res.data?.message || 'Absence reminders sent successfully');
     } catch (e) {
       toast.error('Failed to send absence reminders');
     } finally {
@@ -57,11 +68,26 @@ export default function AdminDashboard() {
   });
 
   if (isLoading || workloadLoading) {
-    return <div className="flex h-[80vh] items-center justify-center"><Spinner size="lg" /></div>;
+    return (
+      <div className="flex h-[80vh] items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner size="lg" className="text-primary" />
+          <p className="text-slate-500 font-medium">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="p-4 bg-red-50 text-red-700 rounded-lg">Failed to load dashboard data.</div>;
+    return (
+      <div className="p-6 bg-red-50 text-red-700 rounded-2xl border border-red-100 flex flex-col items-center justify-center text-center max-w-md mx-auto mt-20">
+        <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+          <Activity className="h-6 w-6 text-red-500" />
+        </div>
+        <h3 className="text-lg font-bold">Failed to load data</h3>
+        <p className="text-sm mt-1">Please check your connection and try again.</p>
+      </div>
+    );
   }
 
   const data = (response as any)?.data;
@@ -69,16 +95,14 @@ export default function AdminDashboard() {
   const finance = data?.finance || { totalCollected: 0, totalPending: 0, pendingVerificationSlips: 0 };
   const recentExams = data?.recentExams || [];
   
-  // Format finance data
   const financeChartData = [
     {
-      name: 'Fees Overview',
+      name: 'Current Year',
       Collected: finance.totalCollected || 0,
       Pending: finance.totalPending || 0,
     }
   ];
 
-  // Format attendance data
   const attendancePulseData = data?.attendancePulse?.map((item: any) => ({
     name: item.className,
     Present: item.presentCount,
@@ -86,13 +110,11 @@ export default function AdminDashboard() {
     Rate: Math.round(item.attendancePercentage || 0)
   })) || [];
 
-  // Format workload data
   const workloadData = (workloadRes as any)?.data?.map((item: any) => ({
     name: item.teacherName,
     value: item.assignedClassesCount
   })) || [];
 
-  // Calendar logic
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
@@ -101,335 +123,451 @@ export default function AdminDashboard() {
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
   return (
-    <div className="space-y-6 pb-12">
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8 pb-12">
       
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">Admin Dashboard</h2>
-        <p className="text-gray-500">Overview of your school's performance and analytics.</p>
-      </div>
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+        <div className="relative z-10">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+            Admin Overview <Sparkles className="h-6 w-6 text-amber-400" />
+          </h2>
+          <p className="text-slate-500 mt-1">Your comprehensive institutional command center.</p>
+        </div>
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4 text-slate-400" />
+            {format(new Date(), 'EEEE, MMMM d, yyyy')}
+          </div>
+        </div>
+      </motion.div>
       
       {/* Top Row: Stat Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         
         {/* Total Students */}
-        <Card className="border-none shadow-sm bg-white/70 backdrop-blur-xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-            <Users className="h-16 w-16 text-[#f4b400]" />
-          </div>
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-yellow-50 rounded-lg">
-                <Users className="h-5 w-5 text-[#f4b400]" />
+        <motion.div variants={itemVariants}>
+          <Card className="border border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow relative overflow-hidden group rounded-3xl h-full">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+            <CardContent className="p-6 relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-12 w-12 bg-amber-100 rounded-2xl flex items-center justify-center">
+                  <Users className="h-6 w-6 text-amber-600" />
+                </div>
+                <div className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md text-xs font-bold">
+                  +12%
+                </div>
               </div>
-              <p className="text-sm font-medium text-gray-600">Total Students</p>
-            </div>
-            <h3 className="text-3xl font-extrabold text-gray-900">{demographics.totalStudents.toLocaleString()}</h3>
-          </CardContent>
-        </Card>
+              <div>
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Students</p>
+                <h3 className="text-4xl font-black text-slate-900 tracking-tight">{demographics.totalStudents.toLocaleString()}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         
         {/* Total Teachers */}
-        <Card className="border-none shadow-sm bg-white/70 backdrop-blur-xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-            <BookOpen className="h-16 w-16 text-blue-500" />
-          </div>
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <BookOpen className="h-5 w-5 text-blue-500" />
+        <motion.div variants={itemVariants}>
+          <Card className="border border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow relative overflow-hidden group rounded-3xl h-full">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+            <CardContent className="p-6 relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-12 w-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md text-xs font-bold">
+                  +2%
+                </div>
               </div>
-              <p className="text-sm font-medium text-gray-600">Total Teachers</p>
-            </div>
-            <h3 className="text-3xl font-extrabold text-gray-900">{demographics.totalTeachers.toLocaleString()}</h3>
-          </CardContent>
-        </Card>
+              <div>
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Staff</p>
+                <h3 className="text-4xl font-black text-slate-900 tracking-tight">{demographics.totalTeachers.toLocaleString()}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Total Parents */}
-        <Card className="border-none shadow-sm bg-white/70 backdrop-blur-xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-            <UserCheck className="h-16 w-16 text-green-500" />
-          </div>
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-green-50 rounded-lg">
-                <UserCheck className="h-5 w-5 text-green-500" />
+        <motion.div variants={itemVariants}>
+          <Card className="border border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow relative overflow-hidden group rounded-3xl h-full">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+            <CardContent className="p-6 relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-12 w-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                  <UserCheck className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md text-xs font-bold">
+                  +8%
+                </div>
               </div>
-              <p className="text-sm font-medium text-gray-600">Total Parents</p>
-            </div>
-            <h3 className="text-3xl font-extrabold text-gray-900">{demographics.totalParents.toLocaleString()}</h3>
-          </CardContent>
-        </Card>
+              <div>
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Parents</p>
+                <h3 className="text-4xl font-black text-slate-900 tracking-tight">{demographics.totalParents.toLocaleString()}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Total Earnings */}
-        <Card className="border-none shadow-sm bg-white/70 backdrop-blur-xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-            <CreditCard className="h-16 w-16 text-purple-500" />
-          </div>
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-purple-50 rounded-lg">
-                <CreditCard className="h-5 w-5 text-purple-500" />
+        <motion.div variants={itemVariants}>
+          <Card className="border border-transparent shadow-lg bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden group rounded-3xl h-full">
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/30 rounded-full blur-2xl group-hover:bg-primary/40 transition-colors"></div>
+            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/30 rounded-full blur-2xl group-hover:bg-blue-500/40 transition-colors"></div>
+            <CardContent className="p-6 relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-12 w-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10">
+                  <CreditCard className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex items-center gap-1 text-emerald-300 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md text-xs font-bold border border-white/5">
+                  +24%
+                </div>
               </div>
-              <p className="text-sm font-medium text-gray-600">Total Earnings</p>
-            </div>
-            <h3 className="text-3xl font-extrabold text-gray-900">रू {finance.totalCollected.toLocaleString()}</h3>
-          </CardContent>
-        </Card>
+              <div>
+                <p className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-1">YTD Revenue</p>
+                <h3 className="text-4xl font-black tracking-tight flex items-baseline gap-1">
+                  <span className="text-2xl text-slate-400 font-bold">रू</span>
+                  {finance.totalCollected.toLocaleString()}
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
       {/* Row 2: Finance & Workload */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <motion.div variants={containerVariants} className="grid gap-6 lg:grid-cols-3">
         
         {/* Finance Bar Chart */}
-        <Card className="lg:col-span-2 border-none shadow-sm bg-white">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-slate-100 rounded-md"><CreditCard className="h-4 w-4 text-slate-700" /></div>
-              <CardTitle>Fee Collection vs Pending</CardTitle>
-            </div>
-            <CardDescription>Financial liquidity overview for the current academic year.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={financeChartData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `रू${value}`} />
-                  <RechartsTooltip 
-                    cursor={{ fill: 'transparent' }} 
-                    formatter={(value: any) => `रू ${Number(value).toLocaleString()}`} 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Legend iconType="circle" />
-                  <Bar dataKey="Collected" fill="#10b981" radius={[6, 6, 0, 0]} barSize={50} />
-                  <Bar dataKey="Pending" fill="#f59e0b" radius={[6, 6, 0, 0]} barSize={50} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <Card className="border border-slate-100 shadow-sm bg-white rounded-3xl overflow-hidden h-full">
+            <CardHeader className="border-b border-slate-50 bg-slate-50/50 pb-6 pt-6 px-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl flex items-center gap-2 text-slate-900">
+                    <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-primary">
+                      <CreditCard className="h-5 w-5" />
+                    </div>
+                    Financial Health
+                  </CardTitle>
+                  <CardDescription className="mt-2 text-slate-500">Fee collection vs pending dues for current academic year</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="h-[320px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={financeChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} barGap={12}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontWeight: 500 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `रू${value/1000}k`} tick={{ fill: '#64748b', fontWeight: 500 }} dx={-10} />
+                    <RechartsTooltip 
+                      cursor={{ fill: '#f8fafc' }} 
+                      formatter={(value: any) => [`रू ${Number(value).toLocaleString()}`, '']} 
+                      contentStyle={{ borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)', padding: '12px 16px', fontWeight: 'bold' }}
+                      itemStyle={{ color: '#0f172a', fontWeight: 'bold' }}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontWeight: 600, color: '#475569' }} />
+                    <Bar dataKey="Collected" fill="#10b981" radius={[8, 8, 8, 8]} barSize={80} name="Collected Revenue" />
+                    <Bar dataKey="Pending" fill="#f59e0b" radius={[8, 8, 8, 8]} barSize={80} name="Pending Dues" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Teacher Workload Pie Chart */}
-        <Card className="border-none shadow-sm bg-white flex flex-col">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-slate-100 rounded-md"><PieChartIcon className="h-4 w-4 text-slate-700" /></div>
-              <CardTitle>Teacher Workload</CardTitle>
-            </div>
-            <CardDescription>Classes assigned per teacher.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col items-center justify-center">
-            {workloadData.length > 0 ? (
-              <div className="h-[280px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={workloadData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {workloadData.map((entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip 
-                      formatter={(value: any) => [`${value} classes`, 'Assigned']}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="text-gray-400 text-sm py-12">No workload data available.</div>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div variants={itemVariants}>
+          <Card className="border border-slate-100 shadow-sm bg-white rounded-3xl h-full flex flex-col">
+            <CardHeader className="border-b border-slate-50 bg-slate-50/50 pb-6 pt-6 px-6">
+              <CardTitle className="text-xl flex items-center gap-2 text-slate-900">
+                <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-blue-500">
+                  <PieChartIcon className="h-5 w-5" />
+                </div>
+                Staff Workload
+              </CardTitle>
+              <CardDescription className="mt-2 text-slate-500">Distribution of assigned classes</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col items-center justify-center p-6">
+              {workloadData.length > 0 ? (
+                <div className="h-[280px] w-full relative">
+                  <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+                    <span className="text-3xl font-black text-slate-800">{demographics.totalTeachers}</span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Teachers</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={workloadData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={100}
+                        paddingAngle={4}
+                        dataKey="value"
+                        stroke="none"
+                        cornerRadius={6}
+                      >
+                        {workloadData.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip 
+                        formatter={(value: any) => [`${value} classes assigned`, '']}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-slate-400 h-full gap-3">
+                  <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center">
+                    <PieChartIcon className="h-8 w-8 text-slate-300" />
+                  </div>
+                  <span className="font-medium text-sm">No workload data yet.</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
       {/* Row 3: Attendance Pulse & Recent Activities */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <motion.div variants={containerVariants} className="grid gap-6 lg:grid-cols-3">
         
         {/* Attendance Area Chart */}
-        <Card className="lg:col-span-2 border-none shadow-sm bg-white">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-slate-100 rounded-md"><Activity className="h-4 w-4 text-slate-700" /></div>
-              <CardTitle>Daily Attendance Pulse</CardTitle>
-            </div>
-            <CardDescription>Present vs Absent statistics across all classes for today.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {attendancePulseData.length > 0 ? (
-              <div className="h-[300px] w-full mt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={attendancePulseData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorAbsent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
-                    <RechartsTooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend iconType="circle" />
-                    <Area type="monotone" dataKey="Present" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorPresent)" />
-                    <Area type="monotone" dataKey="Absent" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorAbsent)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="h-[300px] flex items-center justify-center text-gray-400 text-sm">
-                No attendance data recorded today.
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Activities */}
-        <Card className="flex flex-col border-none shadow-sm bg-white">
-          <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
-            <CardDescription>System notifications & exams</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
-            <div className="space-y-6">
-              
-              {finance.pendingVerificationSlips > 0 && (
-                <div className="flex p-3 bg-orange-50 rounded-xl border border-orange-100">
-                  <div className="flex-shrink-0 mt-0.5">
-                    <span className="flex h-2.5 w-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <Card className="border border-slate-100 shadow-sm bg-white rounded-3xl h-full">
+            <CardHeader className="border-b border-slate-50 bg-slate-50/50 pb-6 pt-6 px-6">
+              <CardTitle className="text-xl flex items-center gap-2 text-slate-900">
+                <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-purple-500">
+                  <Activity className="h-5 w-5" />
+                </div>
+                Live Attendance Pulse
+              </CardTitle>
+              <CardDescription className="mt-2 text-slate-500">Real-time present vs absent statistics for today</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              {attendancePulseData.length > 0 ? (
+                <div className="h-[320px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={attendancePulseData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorAbsent" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }} />
+                      <RechartsTooltip 
+                        contentStyle={{ borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }}
+                        itemStyle={{ fontWeight: 'bold' }}
+                      />
+                      <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px', fontWeight: 600, color: '#475569' }} />
+                      <Area type="monotone" dataKey="Present" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorPresent)" activeDot={{ r: 6, strokeWidth: 0, fill: '#10b981' }} />
+                      <Area type="monotone" dataKey="Absent" stroke="#f43f5e" strokeWidth={4} fillOpacity={1} fill="url(#colorAbsent)" activeDot={{ r: 6, strokeWidth: 0, fill: '#f43f5e' }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[320px] flex flex-col items-center justify-center text-slate-400 gap-3">
+                  <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center">
+                    <Activity className="h-8 w-8 text-slate-300" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-bold text-orange-900">Pending Fee Verifications</p>
-                    <p className="text-sm text-orange-700/80 mt-1">You have {finance.pendingVerificationSlips} offline payment slips waiting to be verified.</p>
-                  </div>
+                  <span className="font-medium text-sm">No attendance recorded today.</span>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </motion.div>
 
-              {recentExams.map((exam: any, idx: number) => (
-                <div key={idx} className="flex p-3 hover:bg-slate-50 rounded-xl transition-colors">
-                  <div className="flex-shrink-0 mt-1.5">
-                    <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+        {/* System Alerts */}
+        <motion.div variants={itemVariants}>
+          <Card className="border border-slate-100 shadow-sm bg-white rounded-3xl h-full flex flex-col">
+            <CardHeader className="border-b border-slate-50 bg-slate-50/50 pb-6 pt-6 px-6">
+              <CardTitle className="text-xl flex items-center justify-between text-slate-900">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-rose-500 relative">
+                    <Bell className="h-5 w-5" />
+                    {(finance.pendingVerificationSlips > 0 || recentExams.length > 0) && (
+                      <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-rose-500 rounded-full animate-ping"></span>
+                    )}
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-semibold text-slate-800">Exam Published</p>
-                    <p className="text-sm text-slate-500 mt-0.5">Results for "{exam.name}" have been published.</p>
-                  </div>
+                  System Alerts
                 </div>
-              ))}
+              </CardTitle>
+              <CardDescription className="mt-2 text-slate-500">Requires your attention</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 flex-1 overflow-y-auto">
+              <div className="divide-y divide-slate-50">
+                
+                {finance.pendingVerificationSlips > 0 && (
+                  <div className="p-5 hover:bg-slate-50 transition-colors flex gap-4 cursor-pointer group">
+                    <div className="h-10 w-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <CreditCard className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">Action Required: Fees</p>
+                      <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                        <strong className="text-amber-600">{finance.pendingVerificationSlips}</strong> offline payment slips are waiting for manual verification.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-              {recentExams.length === 0 && finance.pendingVerificationSlips === 0 && (
-                <div className="text-center text-gray-500 py-12 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                  No recent activities to show.
-                </div>
-              )}
-              
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                {recentExams.map((exam: any, idx: number) => (
+                  <div key={idx} className="p-5 hover:bg-slate-50 transition-colors flex gap-4 cursor-pointer group">
+                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <BookOpen className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">Exam Published</p>
+                      <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                        Results for <strong className="text-slate-700">"{exam.name}"</strong> are now live for students and parents.
+                      </p>
+                    </div>
+                  </div>
+                ))}
+
+                {recentExams.length === 0 && finance.pendingVerificationSlips === 0 && (
+                  <div className="p-10 flex flex-col items-center justify-center text-center">
+                    <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+                    </div>
+                    <p className="text-sm font-bold text-slate-700">All caught up!</p>
+                    <p className="text-xs text-slate-400 mt-1">No pending alerts at the moment.</p>
+                  </div>
+                )}
+                
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
 
       {/* Bottom Row: Calendar & Actions */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <motion.div variants={containerVariants} className="grid gap-6 lg:grid-cols-3">
         {/* Calendar Widget */}
-        <Card className="lg:col-span-2 border-none shadow-sm bg-white">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 pb-4">
-            <CardTitle>Event Calendar</CardTitle>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm" onClick={prevMonth} className="h-8 w-8 p-0 rounded-full"><ChevronLeft className="h-4 w-4" /></Button>
-              <span className="text-sm font-bold text-slate-700 min-w-[120px] text-center">
-                {format(currentDate, 'MMMM yyyy')}
-              </span>
-              <Button variant="outline" size="sm" onClick={nextMonth} className="h-8 w-8 p-0 rounded-full"><ChevronRight className="h-4 w-4" /></Button>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-7 gap-1 text-center font-bold text-slate-400 text-xs mb-3 uppercase tracking-wider">
-              <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
-            </div>
-            <div className="grid grid-cols-7 gap-2">
-              {/* Empty slots for start of month offset */}
-              {Array.from({ length: monthStart.getDay() }).map((_, i) => (
-                <div key={`empty-${i}`} className="h-24 bg-slate-50/50 rounded-xl border border-dashed border-slate-200"></div>
-              ))}
-              
-              {/* Days of month */}
-              {daysInMonth.map((day, i) => (
-                <div 
-                  key={i} 
-                  className={`
-                    relative h-24 p-2 rounded-xl border transition-all hover:bg-slate-50 group
-                    ${isToday(day) ? 'bg-blue-50/50 border-blue-200 shadow-sm' : 'border-slate-200'}
-                  `}
-                >
-                  <div className={`text-sm font-semibold mb-1 ${isToday(day) ? 'text-blue-600' : 'text-slate-700'}`}>
-                    {format(day, 'd')}
-                  </div>
-                  {/* Mock Event Dot */}
-                  {i % 8 === 0 && i > 0 && (
-                    <div className="px-1.5 py-1 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-md truncate group-hover:bg-amber-200 transition-colors">
-                      School Event
-                    </div>
-                  )}
-                  {isToday(day) && (
-                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-blue-500"></div>
-                  )}
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <Card className="border border-slate-100 shadow-sm bg-white rounded-3xl overflow-hidden h-full">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50 pb-4 pt-5 px-6">
+              <CardTitle className="text-xl flex items-center gap-2 text-slate-900">
+                <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-teal-500">
+                  <CalendarIcon className="h-5 w-5" />
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                Academic Calendar
+              </CardTitle>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl shadow-sm border border-slate-100">
+                <Button variant="ghost" size="sm" onClick={prevMonth} className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100 hover:text-primary text-slate-400"><ChevronLeft className="h-5 w-5" /></Button>
+                <span className="text-sm font-bold text-slate-700 min-w-[140px] text-center tracking-wide">
+                  {format(currentDate, 'MMMM yyyy')}
+                </span>
+                <Button variant="ghost" size="sm" onClick={nextMonth} className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100 hover:text-primary text-slate-400"><ChevronRight className="h-5 w-5" /></Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 bg-slate-50/30">
+              <div className="grid grid-cols-7 gap-2 text-center font-bold text-slate-400 text-xs mb-4 uppercase tracking-widest">
+                <div className="text-rose-400">Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div className="text-indigo-400">Sat</div>
+              </div>
+              <div className="grid grid-cols-7 gap-3">
+                {Array.from({ length: monthStart.getDay() }).map((_, i) => (
+                  <div key={`empty-${i}`} className="h-24 rounded-2xl border border-transparent"></div>
+                ))}
+                
+                {daysInMonth.map((day, i) => {
+                  const isCurrent = isToday(day);
+                  const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                  const hasEvent = i % 8 === 0 && i > 0;
+                  
+                  return (
+                    <motion.div 
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      key={i} 
+                      className={`
+                        relative h-24 p-3 rounded-2xl border transition-all cursor-pointer group shadow-sm
+                        ${isCurrent ? 'bg-primary border-primary shadow-primary/25' : 'bg-white border-slate-100 hover:border-slate-300'}
+                      `}
+                    >
+                      <div className={`text-sm font-bold flex justify-between items-start ${isCurrent ? 'text-white' : isWeekend ? 'text-slate-400' : 'text-slate-700'}`}>
+                        {format(day, 'd')}
+                      </div>
+                      
+                      {hasEvent && !isCurrent && (
+                        <div className="mt-2 w-full px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-lg truncate border border-amber-100">
+                          Term Exam
+                        </div>
+                      )}
+                      
+                      {isCurrent && hasEvent && (
+                        <div className="mt-2 w-full px-2 py-1 bg-white/20 text-white text-[10px] font-bold rounded-lg truncate border border-white/20">
+                          Term Exam
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Quick Actions */}
-        <Card className="border-none shadow-sm bg-white flex flex-col">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Trigger system notifications</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <Button 
-              onClick={handleSendFeeReminders} 
-              disabled={sendingFees}
-              className="w-full flex items-center justify-between h-12 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 shadow-sm transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                <span className="font-semibold">Send Fee Reminders</span>
+        <motion.div variants={itemVariants}>
+          <Card className="border border-slate-100 shadow-sm bg-white rounded-3xl h-full flex flex-col overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none"></div>
+            <CardHeader className="pb-6 pt-6 px-6">
+              <CardTitle className="text-xl text-slate-900 font-extrabold tracking-tight">Command Center</CardTitle>
+              <CardDescription className="mt-1 text-slate-500">Automated communication tools</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4 px-6 pb-6 relative z-10">
+              
+              <div className="group">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">Financial</p>
+                <Button 
+                  onClick={handleSendFeeReminders} 
+                  disabled={sendingFees}
+                  className="w-full flex items-center justify-between h-14 bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-100 hover:border-primary/50 shadow-sm transition-all rounded-2xl group-hover:shadow-md"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+                      <CreditCard className="h-4 w-4" />
+                    </div>
+                    <span className="font-bold">Send Fee Reminders</span>
+                  </div>
+                  {sendingFees ? <Spinner size="sm" className="text-primary" /> : <Send className="h-4 w-4 text-slate-300 group-hover:text-primary transition-colors" />}
+                </Button>
               </div>
-              {sendingFees ? <Spinner size="sm" className="text-indigo-700" /> : <Send className="h-4 w-4 text-indigo-500" />}
-            </Button>
-            
-            <Button 
-              onClick={handleSendAbsenceReminders} 
-              disabled={sendingAbsences}
-              className="w-full flex items-center justify-between h-12 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 shadow-sm transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                <span className="font-semibold">Send Absence Alerts</span>
+              
+              <div className="group mt-2">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">Academic</p>
+                <Button 
+                  onClick={handleSendAbsenceReminders} 
+                  disabled={sendingAbsences}
+                  className="w-full flex items-center justify-between h-14 bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-100 hover:border-rose-400/50 shadow-sm transition-all rounded-2xl group-hover:shadow-md"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <span className="font-bold">Send Absence Alerts</span>
+                  </div>
+                  {sendingAbsences ? <Spinner size="sm" className="text-rose-500" /> : <Send className="h-4 w-4 text-slate-300 group-hover:text-rose-500 transition-colors" />}
+                </Button>
               </div>
-              {sendingAbsences ? <Spinner size="sm" className="text-rose-700" /> : <Send className="h-4 w-4 text-rose-500" />}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
 
-    </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+
+    </motion.div>
   );
 }

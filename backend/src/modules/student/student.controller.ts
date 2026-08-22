@@ -21,24 +21,21 @@ export const enrollStudent = async (req: Request, res: Response) => {
 
   const subdomain = tenant.code; // Using unique slug/code
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     // 1. Find or Create Parent User & Parent Record
-    let parentUser = await User.findOne({ email: `${payload.primaryPhone}@${subdomain}.schoolos.com` }).session(session);
+    let parentUser = await User.findOne({ email: `${payload.primaryPhone}@${subdomain}.schoolos.com` });
     if (!parentUser) {
-      parentUser = await User.create([{
+      parentUser = await User.create({
         email: `${payload.primaryPhone}@${subdomain}.schoolos.com`,
         password: 'Password123!', // Temporary password
         role: 'PARENT',
         schoolId
-      }], { session }).then(res => res[0]);
+      });
     }
 
-    let parentRecord = await Parent.findOne({ schoolId, primaryPhone: payload.primaryPhone }).session(session);
+    let parentRecord = await Parent.findOne({ schoolId, primaryPhone: payload.primaryPhone });
     if (!parentRecord) {
-      parentRecord = await Parent.create([{
+      parentRecord = await Parent.create({
         schoolId,
         userId: parentUser!._id,
         fatherName: payload.fatherName,
@@ -48,22 +45,22 @@ export const enrollStudent = async (req: Request, res: Response) => {
         occupation: payload.parentOccupation,
         address: payload.parentAddress,
         children: []
-      }], { session }).then(res => res[0]);
+      });
     }
     if (!parentRecord) throw new Error('Failed to create parent record');
 
     // 2. Check duplicate admission number
-    const existingStudent = await Student.findOne({ schoolId, admissionNumber: payload.admissionNumber }).session(session);
+    const existingStudent = await Student.findOne({ schoolId, admissionNumber: payload.admissionNumber });
     if (existingStudent) throw new Error(`Admission number ${payload.admissionNumber} already exists`);
 
     // 3. Create Student User
     const studentEmail = `${payload.admissionNumber}@${subdomain}.schoolos.com`.toLowerCase();
-    const studentUser = await User.create([{
+    const studentUser = await User.create({
       email: studentEmail,
       password: payload.dobBS || 'Password123!',
       role: 'STUDENT',
       schoolId
-    }], { session }).then(res => res[0]);
+    });
 
     // 4. Handle Avatar Upload
     let avatarUrl;
@@ -73,7 +70,7 @@ export const enrollStudent = async (req: Request, res: Response) => {
     }
 
     // 5. Create Student Record
-    const studentRecord = await Student.create([{
+    const studentRecord = await Student.create({
       schoolId,
       userId: studentUser._id,
       admissionNumber: payload.admissionNumber,
@@ -93,14 +90,11 @@ export const enrollStudent = async (req: Request, res: Response) => {
       emergencyContact: payload.emergencyContact,
       parentId: parentRecord._id,
       status: 'ENROLLED'
-    }], { session }).then(res => res[0]);
+    });
 
     // 6. Link Bi-directionally
     parentRecord!.children.push(studentRecord._id as any);
-    await parentRecord!.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
+    await parentRecord!.save();
 
     logAudit(req, 'STUDENT_ENROLLED', { 
       studentId: studentRecord._id, 
@@ -109,8 +103,6 @@ export const enrollStudent = async (req: Request, res: Response) => {
 
     return successResponse(res, studentRecord, 'Student enrolled successfully', 201);
   } catch (error: any) {
-    await session.abortTransaction();
-    session.endSession();
     return errorResponse(res, 'ENROLLMENT_FAILED', error.message, null, 400);
   }
 };
@@ -131,27 +123,24 @@ export const bulkEnroll = async (req: Request, res: Response) => {
 
   const subdomain = tenant.code;
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const enrolledStudents = [];
 
     for (const payload of students) {
       // 1. Find or Create Parent User & Parent Record
-      let parentUser = await User.findOne({ email: `${payload.primaryPhone}@${subdomain}.schoolos.com` }).session(session);
+      let parentUser = await User.findOne({ email: `${payload.primaryPhone}@${subdomain}.schoolos.com` });
       if (!parentUser) {
-        parentUser = await User.create([{
+        parentUser = await User.create({
           email: `${payload.primaryPhone}@${subdomain}.schoolos.com`,
           password: 'Password123!',
           role: 'PARENT',
           schoolId
-        }], { session }).then(res => res[0]);
+        });
       }
 
-      let parentRecord = await Parent.findOne({ schoolId, primaryPhone: payload.primaryPhone }).session(session);
+      let parentRecord = await Parent.findOne({ schoolId, primaryPhone: payload.primaryPhone });
       if (!parentRecord) {
-        parentRecord = await Parent.create([{
+        parentRecord = await Parent.create({
           schoolId,
           userId: parentUser!._id,
           fatherName: payload.fatherName,
@@ -161,24 +150,24 @@ export const bulkEnroll = async (req: Request, res: Response) => {
           occupation: payload.parentOccupation,
           address: payload.parentAddress,
           children: []
-        }], { session }).then(res => res[0]);
+        });
       }
 
       // 2. Check duplicate admission number
-      const existingStudent = await Student.findOne({ schoolId, admissionNumber: payload.admissionNumber }).session(session);
+      const existingStudent = await Student.findOne({ schoolId, admissionNumber: payload.admissionNumber });
       if (existingStudent) throw new Error(`Admission number ${payload.admissionNumber} already exists`);
 
       // 3. Create Student User
       const studentEmail = `${payload.admissionNumber}@${subdomain}.schoolos.com`.toLowerCase();
-      const studentUser = await User.create([{
+      const studentUser = await User.create({
         email: studentEmail,
         password: payload.dobBS || 'Password123!',
         role: 'STUDENT',
         schoolId
-      }], { session }).then(res => res[0]);
+      });
 
       // 4. Create Student Record
-      const studentRecord = await Student.create([{
+      const studentRecord = await Student.create({
         schoolId,
         userId: studentUser._id,
         admissionNumber: payload.admissionNumber,
@@ -197,19 +186,16 @@ export const bulkEnroll = async (req: Request, res: Response) => {
         emergencyContact: payload.emergencyContact,
         parentId: parentRecord!._id,
         status: 'ENROLLED'
-      }], { session }).then(res => res[0]);
+      });
 
       // 5. Link Bi-directionally
       if (parentRecord) {
         parentRecord.children.push(studentRecord._id as any);
-        await parentRecord.save({ session });
+        await parentRecord.save();
       }
       
       enrolledStudents.push(studentRecord);
     }
-
-    await session.commitTransaction();
-    session.endSession();
 
     logAudit(req, 'STUDENT_BULK_ENROLLED', { 
       count: enrolledStudents.length 
@@ -217,8 +203,6 @@ export const bulkEnroll = async (req: Request, res: Response) => {
 
     return successResponse(res, { count: enrolledStudents.length, enrolledStudents }, 'Bulk enrollment successful', 201);
   } catch (error: any) {
-    await session.abortTransaction();
-    session.endSession();
     return errorResponse(res, 'BULK_ENROLLMENT_FAILED', error.message, null, 400);
   }
 };

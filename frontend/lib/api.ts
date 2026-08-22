@@ -44,7 +44,9 @@ export async function apiFetch<T = any>(endpoint: string, options: FetchOptions 
 
   if (data instanceof FormData) {
     // If it's FormData, let the browser set the Content-Type automatically with the correct boundary
-    delete (config.headers as Record<string, string>)['Content-Type'];
+    const headersObj = config.headers as Record<string, string>;
+    delete headersObj['Content-Type'];
+    delete headersObj['content-type'];
     config.body = data;
   } else if (data) {
     config.body = JSON.stringify(data);

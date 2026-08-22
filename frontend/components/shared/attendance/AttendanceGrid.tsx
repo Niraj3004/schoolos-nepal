@@ -28,10 +28,10 @@ interface AttendanceGridProps {
 }
 
 const STATUS_OPTIONS: { value: AttendanceStatus; label: string; color: string; activeColor: string }[] = [
-  { value: 'PRESENT', label: 'P', color: 'border-success/30 text-success bg-white', activeColor: 'bg-success text-white border-success shadow-sm shadow-success/20' },
-  { value: 'ABSENT', label: 'A', color: 'border-danger/30 text-danger bg-white', activeColor: 'bg-danger text-white border-danger shadow-sm shadow-danger/20' },
-  { value: 'LATE', label: 'L', color: 'border-warning/30 text-warning bg-white', activeColor: 'bg-warning text-white border-warning shadow-sm shadow-warning/20' },
-  { value: 'EXCUSED', label: 'E', color: 'border-blue-300 text-blue-600 bg-white', activeColor: 'bg-blue-500 text-white border-blue-500 shadow-sm shadow-blue-500/20' },
+  { value: 'PRESENT', label: 'Present', color: 'border-emerald-200 text-emerald-600 bg-emerald-50/50 hover:bg-emerald-50', activeColor: 'bg-emerald-500 text-white border-emerald-500 shadow-sm' },
+  { value: 'ABSENT', label: 'Absent', color: 'border-red-200 text-red-600 bg-red-50/50 hover:bg-red-50', activeColor: 'bg-red-500 text-white border-red-500 shadow-sm' },
+  { value: 'LATE', label: 'Late', color: 'border-amber-200 text-amber-600 bg-amber-50/50 hover:bg-amber-50', activeColor: 'bg-amber-500 text-white border-amber-500 shadow-sm' },
+  { value: 'EXCUSED', label: 'Excused', color: 'border-blue-200 text-blue-600 bg-blue-50/50 hover:bg-blue-50', activeColor: 'bg-blue-500 text-white border-blue-500 shadow-sm' },
 ];
 
 export function AttendanceGrid({ students, entries, onEntryChange, disabled = false }: AttendanceGridProps) {
@@ -57,40 +57,39 @@ export function AttendanceGrid({ students, entries, onEntryChange, disabled = fa
   return (
     <div className="space-y-4">
       {/* Summary Bar */}
-      <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg border text-sm">
-        <span className="text-gray-500 font-medium">Summary:</span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-success" />
-          <span className="font-medium">{counts.PRESENT || 0}</span>
-          <span className="text-gray-400">Present</span>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-danger" />
-          <span className="font-medium">{counts.ABSENT || 0}</span>
-          <span className="text-gray-400">Absent</span>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-warning" />
-          <span className="font-medium">{counts.LATE || 0}</span>
-          <span className="text-gray-400">Late</span>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-          <span className="font-medium">{counts.EXCUSED || 0}</span>
-          <span className="text-gray-400">Excused</span>
-        </span>
-        <span className="ml-auto text-gray-500">{students.length} students</span>
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
+        <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <span className="text-3xl font-black text-slate-800">{students.length}</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total</span>
+        </div>
+        <div className="flex flex-col items-center justify-center p-4 bg-emerald-50 border border-emerald-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <span className="text-3xl font-black text-emerald-600">{counts.PRESENT || 0}</span>
+          <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1">Present</span>
+        </div>
+        <div className="flex flex-col items-center justify-center p-4 bg-red-50 border border-red-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <span className="text-3xl font-black text-red-600">{counts.ABSENT || 0}</span>
+          <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-1">Absent</span>
+        </div>
+        <div className="flex flex-col items-center justify-center p-4 bg-amber-50 border border-amber-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <span className="text-3xl font-black text-amber-600">{counts.LATE || 0}</span>
+          <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-1">Late</span>
+        </div>
+        <div className="flex flex-col items-center justify-center p-4 bg-blue-50 border border-blue-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <span className="text-3xl font-black text-blue-600">{counts.EXCUSED || 0}</span>
+          <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-1">Excused</span>
+        </div>
       </div>
 
       {/* Grid */}
-      <div className="rounded-lg border overflow-hidden bg-white">
+      <div className="rounded-3xl border border-slate-100 overflow-hidden bg-white shadow-sm">
         {/* Header */}
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3 bg-gray-50 border-b text-sm font-medium text-gray-500">
-          <div className="w-10 text-center">#</div>
-          <div>Student</div>
-          <div className="flex gap-3 min-w-[200px] justify-center">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-4 bg-slate-50/80 backdrop-blur-sm border-b text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <div className="w-12 text-center">Roll</div>
+          <div>Student Details</div>
+          <div className="flex gap-2 min-w-[340px] justify-center opacity-0 sm:opacity-100">
+            {/* We hide the header text on mobile because it gets cramped, but keep the spacing */}
             {STATUS_OPTIONS.map(opt => (
-              <div key={opt.value} className="w-10 text-center text-xs">{opt.value}</div>
+              <div key={opt.value} className="w-20 text-center text-[10px] tracking-wider">{opt.label}</div>
             ))}
           </div>
         </div>
@@ -136,7 +135,7 @@ export function AttendanceGrid({ students, entries, onEntryChange, disabled = fa
               </div>
 
               {/* Status Radio Toggle Group */}
-              <div className="flex gap-2 min-w-[200px] justify-center">
+              <div className="flex gap-2 min-w-[340px] justify-center">
                 {STATUS_OPTIONS.map(opt => {
                   const isActive = currentStatus === opt.value;
                   return (
@@ -146,11 +145,11 @@ export function AttendanceGrid({ students, entries, onEntryChange, disabled = fa
                       disabled={disabled}
                       onClick={() => onEntryChange(student._id, opt.value)}
                       className={cn(
-                        "w-10 h-10 rounded-lg border-2 text-sm font-bold transition-all duration-150",
+                        "w-20 h-10 rounded-xl border font-bold text-xs transition-all duration-200",
                         "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary/30",
                         "disabled:opacity-50 disabled:cursor-not-allowed",
                         isActive ? opt.activeColor : opt.color,
-                        !isActive && !disabled && "hover:scale-105 cursor-pointer",
+                        !isActive && !disabled && "hover:bg-opacity-80 cursor-pointer",
                       )}
                       title={opt.value}
                     >

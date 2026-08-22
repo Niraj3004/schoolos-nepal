@@ -107,7 +107,7 @@ export default function TeacherAttendancePage() {
   // Fetch active academic year
   const { data: academicYearRes } = useQuery({
     queryKey: ['activeAcademicYear'],
-    queryFn: () => api.get('/academic/years?current=true'),
+    queryFn: () => api.get('/academic/academic-years'),
   });
 
   // Submit mutation
@@ -123,7 +123,7 @@ export default function TeacherAttendancePage() {
 
   const handleSubmit = () => {
     const academicYears = (academicYearRes as any)?.data;
-    const activeYear = Array.isArray(academicYears) ? academicYears[0] : academicYears;
+    const activeYear = Array.isArray(academicYears) ? academicYears.find((y: any) => y.isCurrent) : academicYears;
 
     if (!activeYear?._id) {
       setToast({ title: 'No active academic year', description: 'Please set an active academic year first.', variant: 'error' });
@@ -158,7 +158,7 @@ export default function TeacherAttendancePage() {
     <div className="space-y-6">
       {/* Toast */}
       {toast && (
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed bottom-8 right-8 z-[100] animate-in slide-in-from-bottom-5">
           <Toast title={toast.title} description={toast.description} variant={toast.variant} onClose={() => setToast(null)} />
         </div>
       )}

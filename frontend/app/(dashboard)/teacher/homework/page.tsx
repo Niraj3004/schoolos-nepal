@@ -231,11 +231,19 @@ function CreateHomeworkModal({ isOpen, onClose, allocations, onSuccess }: any) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [allocationId, setAllocationId] = useState('');
+  const [assignedDateBS, setAssignedDateBS] = useState('');
   const [dueDateBS, setDueDateBS] = useState('');
+  const [dueDateAD, setDueDateAD] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Fetch active academic year
+  const { data: academicYearRes } = useQuery({
+    queryKey: ['activeAcademicYear'],
+    queryFn: () => api.get('/academic/academic-years'),
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -253,7 +261,7 @@ function CreateHomeworkModal({ isOpen, onClose, allocations, onSuccess }: any) {
   };
 
   const handleSubmit = async () => {
-    if (!title || !description || !allocationId || !dueDateBS) {
+    if (!title || !description || !allocationId || !assignedDateBS || !dueDateBS || !dueDateAD) {
       setError('Please fill all required fields.');
       return;
     }
@@ -261,24 +269,33 @@ function CreateHomeworkModal({ isOpen, onClose, allocations, onSuccess }: any) {
     const allocation = allocations.find((a: any) => a._id === allocationId);
     if (!allocation) return;
 
+    const academicYears = (academicYearRes as any)?.data;
+    const activeYear = Array.isArray(academicYears) ? academicYears.find((y: any) => y.isCurrent) : academicYears;
+
+    if (!activeYear?._id) {
+      setError('No active academic year found. Please configure it in the admin settings.');
+      return;
+    }
+
     setIsSubmitting(true);
     setError('');
 
     try {
       const formData = new FormData();
+      formData.append('academicYearId', activeYear._id);
       formData.append('title', title);
       formData.append('description', description);
       formData.append('classId', allocation.classId._id);
       formData.append('sectionId', allocation.sectionId._id);
       formData.append('subjectId', allocation.subjectId._id);
+      formData.append('assignedDateBS', assignedDateBS);
       formData.append('dueDateBS', dueDateBS);
+      // Ensure dueDateAD is a valid ISO datetime string
+      formData.append('dueDateAD', new Date(dueDateAD).toISOString());
 
       files.forEach(f => formData.append('attachments', f));
 
-      await apiFetch('/homework', {
-        method: 'POST',
-        body: formData,
-      });
+      await api.post('/homework', formData);
 
       onSuccess();
     } catch (err: any) {
@@ -321,9 +338,19 @@ function CreateHomeworkModal({ isOpen, onClose, allocations, onSuccess }: any) {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Due Date (BS) *</label>
-          <Input value={dueDateBS} onChange={(e) => setDueDateBS(e.target.value)} placeholder="e.g. 2083-01-15" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Assigned Date (BS) *</label>
+            <Input value={assignedDateBS} onChange={(e) => setAssignedDateBS(e.target.value)} placeholder="e.g. 2083-01-10" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Due Date (BS) *</label>
+            <Input value={dueDateBS} onChange={(e) => setDueDateBS(e.target.value)} placeholder="e.g. 2083-01-15" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Due Date (AD) *</label>
+            <Input type="date" value={dueDateAD} onChange={(e) => setDueDateAD(e.target.value)} />
+          </div>
         </div>
 
         <div>
