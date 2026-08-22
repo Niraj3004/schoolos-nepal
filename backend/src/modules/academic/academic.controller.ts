@@ -91,6 +91,18 @@ export const allocateSubject = async (req: Request, res: Response) => {
   return successResponse(res, allocation, 'Teacher allocated successfully', 201);
 };
 
+export const getAllocations = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const allocations = await SubjectAllocation.find({ schoolId })
+    .populate('classId', 'name numericValue')
+    .populate('sectionId', 'name')
+    .populate('subjectId', 'name code')
+    .populate('teacherId', 'firstName lastName employeeId')
+    .populate('academicYearId', 'name isCurrent');
+    
+  return successResponse(res, allocations, 'All allocations retrieved');
+};
+
 export const getMyClasses = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
   const teacherId = req.user?.userId;

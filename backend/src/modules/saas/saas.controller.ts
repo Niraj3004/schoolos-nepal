@@ -117,3 +117,57 @@ export const reviewRequest = async (req: Request, res: Response) => {
     return errorResponse(res, 'BAD_REQUEST', error.message, null, 400);
   }
 };
+
+export const createPlan = async (req: Request, res: Response) => {
+  try {
+    const plan = await PlatformPlan.create(req.body);
+    return successResponse(res, plan, 'Plan created successfully', 201);
+  } catch (error: any) {
+    return errorResponse(res, 'INTERNAL_SERVER_ERROR', error.message, null, 500);
+  }
+};
+
+export const updatePlan = async (req: Request, res: Response) => {
+  try {
+    const plan = await PlatformPlan.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!plan) return errorResponse(res, 'NOT_FOUND', 'Plan not found', null, 404);
+    return successResponse(res, plan, 'Plan updated successfully');
+  } catch (error: any) {
+    return errorResponse(res, 'INTERNAL_SERVER_ERROR', error.message, null, 500);
+  }
+};
+
+export const getTenants = async (req: Request, res: Response) => {
+  try {
+    const tenants = await Tenant.find().sort({ createdAt: -1 });
+    return successResponse(res, tenants, 'Tenants retrieved successfully');
+  } catch (error: any) {
+    return errorResponse(res, 'INTERNAL_SERVER_ERROR', error.message, null, 500);
+  }
+};
+
+export const updatePlatformSetting = async (req: Request, res: Response) => {
+  try {
+    let setting = await PlatformSetting.findOne();
+    
+    // Process QR image upload if present
+    let qrCodeImageUrl = setting?.qrCodeImageUrl;
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.buffer, 'schoolos/saas-qr');
+      qrCodeImageUrl = uploadResult.secure_url;
+    }
+
+    const payload = { ...req.body };
+    if (qrCodeImageUrl) payload.qrCodeImageUrl = qrCodeImageUrl;
+
+    if (setting) {
+      setting = await PlatformSetting.findByIdAndUpdate(setting._id, payload, { new: true });
+    } else {
+      setting = await PlatformSetting.create(payload);
+    }
+    
+    return successResponse(res, setting, 'Platform settings updated successfully');
+  } catch (error: any) {
+    return errorResponse(res, 'INTERNAL_SERVER_ERROR', error.message, null, 500);
+  }
+};

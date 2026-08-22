@@ -11,8 +11,10 @@ import AcademicYearModal from '@/components/shared/academic/AcademicYearModal';
 import TermModal from '@/components/shared/academic/TermModal';
 import ClassModal from '@/components/shared/academic/ClassModal';
 import SubjectModal from '@/components/shared/academic/SubjectModal';
+import SectionModal from '@/components/shared/academic/SectionModal';
+import AllocationModal from '@/components/shared/academic/AllocationModal';
 
-const TABS = ['Academic Years', 'Terms', 'Classes & Sections', 'Subjects'] as const;
+const TABS = ['Academic Years', 'Terms', 'Classes & Sections', 'Subjects', 'Teacher Allocations'] as const;
 type Tab = typeof TABS[number];
 
 export default function AcademicConfigurationPage() {
@@ -23,6 +25,9 @@ export default function AcademicConfigurationPage() {
   const [isTermModalOpen, setIsTermModalOpen] = useState(false);
   const [isClassModalOpen, setIsClassModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+  const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
+  const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
   // Queries
   const { data: yearsData, isLoading: isLoadingYears } = useQuery({
@@ -45,10 +50,16 @@ export default function AcademicConfigurationPage() {
     queryFn: () => api.get('/academic/subjects'),
   });
 
+  const { data: allocationsData, isLoading: isLoadingAllocations } = useQuery({
+    queryKey: ['allocations'],
+    queryFn: () => api.get('/academic/allocations'),
+  });
+
   const years = (yearsData as any)?.data || [];
   const terms = (termsData as any)?.data || [];
   const classes = (classesData as any)?.data || [];
   const subjects = (subjectsData as any)?.data || [];
+  const allocations = (allocationsData as any)?.data || [];
 
   return (
     <div className="space-y-6">
@@ -195,6 +206,16 @@ export default function AcademicConfigurationPage() {
                     <div key={c._id} className="border rounded-lg p-4 bg-gray-50/50">
                       <div className="flex justify-between items-center mb-2">
                         <h4 className="font-semibold text-lg text-gray-900">{c.name} <span className="text-xs text-gray-500 font-normal ml-2">Numeric: {c.numericValue}</span></h4>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => {
+                            setSelectedClassId(c._id);
+                            setIsSectionModalOpen(true);
+                          }}
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Add Section
+                        </Button>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {c.sections && c.sections.length > 0 ? (
@@ -268,6 +289,53 @@ export default function AcademicConfigurationPage() {
           </Card>
         )}
 
+        {/* TEACHER ALLOCATIONS TAB */}
+        {activeTab === 'Teacher Allocations' && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Teacher Allocations</CardTitle>
+                <CardDescription>Assign teachers to specific subjects and classes.</CardDescription>
+              </div>
+              <Button onClick={() => setIsAllocationModalOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" /> Assign Teacher
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoadingAllocations ? (
+                <div className="flex justify-center p-8"><Spinner /></div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left text-gray-500">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3">Teacher</th>
+                        <th className="px-6 py-3">Subject</th>
+                        <th className="px-6 py-3">Class</th>
+                        <th className="px-6 py-3">Section</th>
+                        <th className="px-6 py-3">Academic Year</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allocations.map((a: any) => (
+                        <tr key={a._id} className="border-b hover:bg-gray-50">
+                          <td className="px-6 py-4 font-medium text-gray-900">{a.teacherId?.firstName} {a.teacherId?.lastName}</td>
+                          <td className="px-6 py-4">{a.subjectId?.name} ({a.subjectId?.code})</td>
+                          <td className="px-6 py-4">{a.classId?.name}</td>
+                          <td className="px-6 py-4">{a.sectionId?.name}</td>
+                          <td className="px-6 py-4">{a.academicYearId?.name} {a.academicYearId?.isCurrent && '(Current)'}</td>
+                        </tr>
+                      ))}
+                      {allocations.length === 0 && (
+                        <tr><td colSpan={5} className="px-6 py-4 text-center">No teachers allocated yet.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Modals */}
@@ -275,6 +343,17 @@ export default function AcademicConfigurationPage() {
       <TermModal isOpen={isTermModalOpen} onClose={() => setIsTermModalOpen(false)} years={years} />
       <ClassModal isOpen={isClassModalOpen} onClose={() => setIsClassModalOpen(false)} />
       <SubjectModal isOpen={isSubjectModalOpen} onClose={() => setIsSubjectModalOpen(false)} />
+      <AllocationModal isOpen={isAllocationModalOpen} onClose={() => setIsAllocationModalOpen(false)} />
+      {selectedClassId && (
+        <SectionModal 
+          isOpen={isSectionModalOpen} 
+          onClose={() => {
+            setIsSectionModalOpen(false);
+            setSelectedClassId(null);
+          }} 
+          classId={selectedClassId} 
+        />
+      )}
 
     </div>
   );

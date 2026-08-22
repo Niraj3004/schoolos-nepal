@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { getPlans, getPlatformQr, registerSchool, getAdminRequests, reviewRequest } from './saas.controller';
+import { getPlans, getPlatformQr, registerSchool, getAdminRequests, reviewRequest, createPlan, updatePlan, getTenants, updatePlatformSetting } from './saas.controller';
 import { validate } from '../../middlewares/validate';
-import { registerSchoolSchema, reviewRequestSchema } from './saas.validation';
+import { registerSchoolSchema, reviewRequestSchema, createPlanSchema, updatePlanSchema, updatePlatformSettingSchema } from './saas.validation';
 import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
 import { asyncErrorHandler } from '../../utils/asyncErrorHandler';
@@ -20,5 +20,12 @@ router.use(authenticate, requireRole(['SUPERADMIN']));
 router.get('/admin/requests', asyncErrorHandler(getAdminRequests));
 router.patch('/admin/requests/:id/approve', validate(reviewRequestSchema), asyncErrorHandler(reviewRequest));
 router.patch('/admin/requests/:id/reject', validate(reviewRequestSchema), asyncErrorHandler(reviewRequest));
+
+router.get('/admin/tenants', asyncErrorHandler(getTenants));
+
+router.post('/admin/plans', validate(createPlanSchema), asyncErrorHandler(createPlan));
+router.patch('/admin/plans/:id', validate(updatePlanSchema), asyncErrorHandler(updatePlan));
+
+router.patch('/admin/platform-settings', upload.single('qrCode'), validate(updatePlatformSettingSchema), asyncErrorHandler(updatePlatformSetting));
 
 export default router;

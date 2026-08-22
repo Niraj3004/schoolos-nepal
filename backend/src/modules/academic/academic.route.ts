@@ -7,6 +7,7 @@ import {
   createSubject, 
   getSubjects, 
   allocateSubject, 
+  getAllocations,
   getMyClasses,
   createAcademicYear,
   getAcademicYears,
@@ -56,6 +57,7 @@ router.get('/subjects', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncError
 
 // Allocations
 router.post('/allocations', requireRole(['ADMIN']), validate(allocateSubjectSchema), asyncErrorHandler(allocateSubject));
+router.get('/allocations', requireRole(['ADMIN']), asyncErrorHandler(getAllocations));
 router.get('/allocations/my-classes', requireRole(['TEACHER']), asyncErrorHandler(getMyClasses));
 
 export default router;

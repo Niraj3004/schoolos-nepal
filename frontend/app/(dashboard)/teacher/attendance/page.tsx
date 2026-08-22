@@ -21,20 +21,33 @@ export default function TeacherAttendancePage() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [toast, setToast] = useState<{ title: string; description?: string; variant: 'success' | 'error' } | null>(null);
 
-  // Fetch classes
-  const { data: classesRes } = useQuery({
-    queryKey: ['classes'],
-    queryFn: () => api.get('/academic/classes'),
+  // Fetch allocations (my classes)
+  const { data: allocationsRes } = useQuery({
+    queryKey: ['myAllocations'],
+    queryFn: () => api.get('/academic/allocations/my-classes'),
   });
-  const classes = (classesRes as any)?.data || [];
+  const allocations = (allocationsRes as any)?.data || [];
 
-  // Fetch sections for selected class
-  const { data: sectionsRes } = useQuery({
-    queryKey: ['sections', classId],
-    queryFn: () => api.get(`/academic/sections?classId=${classId}`),
-    enabled: !!classId,
-  });
-  const sections = (sectionsRes as any)?.data || [];
+  // Extract unique classes from allocations
+  const classes = useMemo(() => {
+    const unique = new Map();
+    allocations.forEach((a: any) => {
+      if (a.classId) unique.set(a.classId._id, a.classId);
+    });
+    return Array.from(unique.values());
+  }, [allocations]);
+
+  // Extract valid sections for the selected class from allocations
+  const sections = useMemo(() => {
+    if (!classId) return [];
+    const unique = new Map();
+    allocations.forEach((a: any) => {
+      if (a.classId?._id === classId && a.sectionId) {
+        unique.set(a.sectionId._id, a.sectionId);
+      }
+    });
+    return Array.from(unique.values());
+  }, [allocations, classId]);
 
   // Fetch students for the selected class/section
   const { data: studentsRes, isLoading: isLoadingStudents } = useQuery({

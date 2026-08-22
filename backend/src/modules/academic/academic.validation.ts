@@ -53,9 +53,6 @@ export const createSubjectSchema = z.object({
     practicalFullMarks: z.number().min(0),
     theoryPassMarks: z.number().min(0),
     practicalPassMarks: z.number().min(0)
-  }).refine((data) => (data.theoryFullMarks + data.practicalFullMarks) === 100, {
-    message: "Sum of theory and practical full marks must exactly equal 100",
-    path: ["practicalFullMarks"]
   })
 });
 

@@ -28,31 +28,50 @@ export default function TeacherExamsPage() {
   // Fetch exams
   const { data: examsRes } = useQuery({
     queryKey: ['exams'],
-    queryFn: () => api.get('/exams'),
+    queryFn: () => api.get('/exam'),
   });
   const exams = (examsRes as any)?.data || [];
 
-  // Fetch classes
-  const { data: classesRes } = useQuery({
-    queryKey: ['classes'],
-    queryFn: () => api.get('/academic/classes'),
+  // Fetch allocations (my classes)
+  const { data: allocationsRes } = useQuery({
+    queryKey: ['myAllocations'],
+    queryFn: () => api.get('/academic/allocations/my-classes'),
   });
-  const classes = (classesRes as any)?.data || [];
+  const allocations = (allocationsRes as any)?.data || [];
 
-  // Fetch sections
-  const { data: sectionsRes } = useQuery({
-    queryKey: ['sections', classId],
-    queryFn: () => api.get(`/academic/sections?classId=${classId}`),
-    enabled: !!classId,
-  });
-  const sections = (sectionsRes as any)?.data || [];
+  // Extract unique classes from allocations
+  const classes = React.useMemo(() => {
+    const unique = new Map();
+    allocations.forEach((a: any) => {
+      if (a.classId) unique.set(a.classId._id, a.classId);
+    });
+    return Array.from(unique.values());
+  }, [allocations]);
 
-  // Fetch subjects
-  const { data: subjectsRes } = useQuery({
-    queryKey: ['subjects'],
-    queryFn: () => api.get('/academic/subjects'),
-  });
-  const subjects = (subjectsRes as any)?.data || [];
+  // Extract valid sections for the selected class from allocations
+  const sections = React.useMemo(() => {
+    if (!classId) return [];
+    const unique = new Map();
+    allocations.forEach((a: any) => {
+      if (a.classId?._id === classId && a.sectionId) {
+        unique.set(a.sectionId._id, a.sectionId);
+      }
+    });
+    return Array.from(unique.values());
+  }, [allocations, classId]);
+
+  // Extract valid subjects for the selected class/section from allocations
+  const subjects = React.useMemo(() => {
+    if (!classId || !sectionId) return [];
+    const unique = new Map();
+    allocations.forEach((a: any) => {
+      if (a.classId?._id === classId && a.sectionId?._id === sectionId && a.subjectId) {
+        unique.set(a.subjectId._id, a.subjectId);
+      }
+    });
+    return Array.from(unique.values());
+  }, [allocations, classId, sectionId]);
+
 
   // Fetch students for the class/section
   const { data: studentsRes, isLoading: isLoadingStudents } = useQuery({

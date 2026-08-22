@@ -25,8 +25,8 @@ export default function TeacherHomeworkPage() {
 
   // Fetch Teacher's allocated classes
   const { data: allocationsRes } = useQuery({
-    queryKey: ['my-classes'],
-    queryFn: () => api.get('/academic/my-classes'),
+    queryKey: ['myAllocations'],
+    queryFn: () => api.get('/academic/allocations/my-classes'),
   });
   const allocations = (allocationsRes as any)?.data || [];
 

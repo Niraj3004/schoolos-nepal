@@ -26,3 +26,34 @@ export const reviewRequestSchema = z.object({
     rejectionReason: z.string().optional()
   })
 });
+
+export const createPlanSchema = z.object({
+  body: z.object({
+    name: z.enum(['Starter', 'Growth', 'Enterprise']),
+    maxStudents: z.number().int().positive(),
+    priceNPRPerYear: z.number().positive(),
+    features: z.array(z.string()),
+    isActive: z.boolean().optional()
+  })
+});
+
+export const updatePlanSchema = z.object({
+  body: z.object({
+    name: z.enum(['Starter', 'Growth', 'Enterprise']).optional(),
+    maxStudents: z.number().int().positive().optional(),
+    priceNPRPerYear: z.number().positive().optional(),
+    features: z.array(z.string()).optional(),
+    isActive: z.boolean().optional()
+  })
+});
+
+export const updatePlatformSettingSchema = z.object({
+  body: z.object({
+    bankName: z.string().optional(),
+    accountName: z.string().optional(),
+    accountNumber: z.string().optional(),
+    branch: z.string().optional(),
+    supportEmail: z.string().email().optional(),
+    supportPhone: z.string().optional()
+  })
+});
