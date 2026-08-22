@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createFeeHead, createFeeStructure, generateMonthlyInvoices, uploadSlip, getPendingSlips, verifySlip } from './finance.controller';
+import { createFeeHead, createFeeStructure, generateMonthlyInvoices, uploadSlip, getPendingSlips, verifySlip, getInvoices, getMyInvoices, getInvoiceById } from './finance.controller';
 import { validate } from '../../middlewares/validate';
 import { createFeeHeadSchema, createFeeStructureSchema, generateMonthlyInvoicesSchema, verifySlipSchema } from './finance.validation';
 import { authenticate } from '../../middlewares/auth';
@@ -19,6 +19,9 @@ router.post('/fee-structures', requireRole(['ADMIN']), validate(createFeeStructu
 
 // Invoices
 router.post('/invoices/generate-monthly', requireRole(['ADMIN']), validate(generateMonthlyInvoicesSchema), asyncErrorHandler(generateMonthlyInvoices));
+router.get('/invoices', requireRole(['ADMIN']), asyncErrorHandler(getInvoices));
+router.get('/invoices/my', requireRole(['PARENT']), asyncErrorHandler(getMyInvoices));
+router.get('/invoices/:id', requireRole(['ADMIN', 'PARENT']), asyncErrorHandler(getInvoiceById));
 
 // Slips workflow
 router.post('/invoices/:id/upload-slip', requireRole(['PARENT']), upload.single('receipt'), asyncErrorHandler(uploadSlip));

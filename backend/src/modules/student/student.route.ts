@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { enrollStudent, bulkEnroll, getStudents, getStudentById } from './student.controller';
+import { enrollStudent, bulkEnroll, getStudents, getStudentById, updateStudent, updateStudentStatus, getStudentMe } from './student.controller';
 import { validate } from '../../middlewares/validate';
-import { enrollStudentSchema, bulkEnrollSchema } from './student.validation';
+import { enrollStudentSchema, bulkEnrollSchema, updateStudentSchema, updateStudentStatusSchema } from './student.validation';
 import { authenticate } from '../../middlewares/auth';
 import { requireRole } from '../../middlewares/requireRole';
 import { requireTenant } from '../../middlewares/tenant';
@@ -17,6 +17,10 @@ router.post('/enroll', requireRole(['ADMIN']), upload.single('avatar'), validate
 router.post('/bulk-enroll', requireRole(['ADMIN']), validate(bulkEnrollSchema), asyncErrorHandler(bulkEnroll));
 
 router.get('/', requireRole(['ADMIN', 'TEACHER']), asyncErrorHandler(getStudents));
+router.get('/me', requireRole(['STUDENT']), asyncErrorHandler(getStudentMe));
 router.get('/:id', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHandler(getStudentById));
+router.patch('/:id', requireRole(['ADMIN']), upload.single('avatar'), validate(updateStudentSchema), asyncErrorHandler(updateStudent));
+router.patch('/:id/status', requireRole(['ADMIN']), validate(updateStudentStatusSchema), asyncErrorHandler(updateStudentStatus));
 
 export default router;
+

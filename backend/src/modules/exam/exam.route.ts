@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createExam, getExams, submitBulkMarks, getReportCard } from './exam.controller';
+import { createExam, getExams, submitBulkMarks, getReportCard, getExamMarks } from './exam.controller';
 import { validate } from '../../middlewares/validate';
 import { createExamSchema, bulkMarkEntrySchema } from './exam.validation';
 import { authenticate } from '../../middlewares/auth';
@@ -18,6 +18,7 @@ router.get('/', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHandler(
 
 // Marks
 router.post('/marks/bulk', requireRole(['ADMIN', 'TEACHER']), validate(bulkMarkEntrySchema), asyncErrorHandler(submitBulkMarks));
+router.get('/marks', requireRole(['ADMIN', 'TEACHER']), asyncErrorHandler(getExamMarks));
 
 // Reports
 router.get('/report-card/:examId/:studentId', requireRole(['ADMIN', 'TEACHER', 'PARENT', 'STUDENT']), asyncErrorHandler(getReportCard));

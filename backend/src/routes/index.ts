@@ -12,6 +12,7 @@ import saasRoutes from '../modules/saas/saas.route';
 import communicationRoutes from '../modules/communication/communication.route';
 import analyticsRoutes from '../modules/analytics/analytics.route';
 import searchRoutes from '../modules/search/search.route';
+import staffRoutes from '../modules/staff/staff.route';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.use('/tenant', tenantRoutes);
 router.use('/academic', academicRoutes);
 router.use('/students', studentRoutes);
 router.use('/parents', parentRoutes);
+router.use('/staff', staffRoutes);
 router.use('/attendance', attendanceRoutes);
 router.use('/exams', examRoutes);
 router.use('/homework', homeworkRoutes);

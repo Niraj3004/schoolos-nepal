@@ -29,3 +29,26 @@ export const bulkEnrollSchema = z.object({
     students: z.array(z.any())
   })
 });
+
+export const updateStudentSchema = z.object({
+  body: z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    rollNumber: z.number().int().optional().or(z.string().regex(/^\d+$/).transform(Number).optional()),
+    currentClassId: z.string().optional(),
+    currentSectionId: z.string().optional(),
+    dobBS: z.string().optional(),
+    dobAD: z.string().datetime().optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+    bloodGroup: z.string().optional(),
+    address: z.string().optional(),
+    houseId: z.string().optional(),
+    emergencyContact: z.string().optional(),
+  })
+});
+
+export const updateStudentStatusSchema = z.object({
+  body: z.object({
+    status: z.enum(['ENROLLED', 'TRANSFERRED', 'GRADUATED', 'SUSPENDED'])
+  })
+});

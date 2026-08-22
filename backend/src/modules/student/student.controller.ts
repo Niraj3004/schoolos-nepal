@@ -266,3 +266,74 @@ export const getStudentById = async (req: Request, res: Response) => {
 
   return successResponse(res, student, 'Student profile retrieved');
 };
+
+export const getStudentMe = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const userId = req.user?.userId;
+
+  const student = await Student.findOne({ schoolId, userId })
+    .populate('currentClassId', 'name')
+    .populate('currentSectionId', 'name');
+
+  if (!student) return errorResponse(res, 'NOT_FOUND', 'Student profile not found for this user', null, 404);
+
+  return successResponse(res, student, 'Student profile retrieved');
+};
+
+export const updateStudent = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+  const payload = req.body;
+
+  const student = await Student.findOne({ _id: id, schoolId });
+  if (!student) return errorResponse(res, 'NOT_FOUND', 'Student not found', null, 404);
+
+  // Handle avatar upload if present
+  if (req.file) {
+    const tenant = await Tenant.findById(schoolId);
+    const subdomain = tenant?.code || 'default';
+    const uploadResult = await uploadToCloudinary(req.file.buffer, `schoolos/${subdomain}/students/`);
+    payload.avatarUrl = uploadResult.secure_url;
+  }
+
+  const allowedFields = [
+    'firstName', 'lastName', 'rollNumber', 'currentClassId', 'currentSectionId',
+    'dobBS', 'dobAD', 'gender', 'bloodGroup', 'address', 'avatarUrl',
+    'houseId', 'emergencyContact'
+  ];
+
+  const updateData: any = {};
+  for (const field of allowedFields) {
+    if (payload[field] !== undefined) {
+      updateData[field] = payload[field];
+    }
+  }
+
+  const updated = await Student.findOneAndUpdate(
+    { _id: id, schoolId },
+    { $set: updateData },
+    { new: true }
+  )
+    .populate('currentClassId', 'name')
+    .populate('currentSectionId', 'name');
+
+  logAudit(req, 'STUDENT_UPDATED', { studentId: id, fields: Object.keys(updateData) });
+
+  return successResponse(res, updated, 'Student updated successfully');
+};
+
+export const updateStudentStatus = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const student = await Student.findOne({ _id: id, schoolId });
+  if (!student) return errorResponse(res, 'NOT_FOUND', 'Student not found', null, 404);
+
+  student.status = status;
+  await student.save();
+
+  logAudit(req, 'STUDENT_STATUS_CHANGED', { studentId: id, newStatus: status });
+
+  return successResponse(res, student, `Student status changed to ${status}`);
+};

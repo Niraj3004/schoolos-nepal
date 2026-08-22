@@ -22,26 +22,30 @@ const roleNavigation: Record<string, { name: string; href: string; icon: React.F
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Students', href: '/admin/students', icon: Users },
     { name: 'Teachers', href: '/admin/teachers', icon: Users },
+    { name: 'Attendance', href: '/admin/attendance', icon: Calendar },
     { name: 'Classes', href: '/admin/classes', icon: BookOpen },
     { name: 'Finance', href: '/admin/finance', icon: CreditCard },
+    { name: 'Notice Board', href: '/notices', icon: MessageSquare },
   ],
   TEACHER: [
     { name: 'Dashboard', href: '/teacher', icon: LayoutDashboard },
     { name: 'Attendance', href: '/teacher/attendance', icon: Calendar },
     { name: 'Exams', href: '/teacher/exams', icon: BookOpen },
     { name: 'Homework', href: '/teacher/homework', icon: BookOpen },
+    { name: 'Notice Board', href: '/notices', icon: MessageSquare },
   ],
   PARENT: [
     { name: 'Dashboard', href: '/parent', icon: LayoutDashboard },
     { name: 'My Children', href: '/parent/children', icon: Users },
     { name: 'Fees & Payments', href: '/parent/fees', icon: CreditCard },
-    { name: 'Notices', href: '/parent/notices', icon: MessageSquare },
+    { name: 'Notice Board', href: '/notices', icon: MessageSquare },
   ],
   STUDENT: [
     { name: 'Dashboard', href: '/student', icon: LayoutDashboard },
     { name: 'Attendance', href: '/student/attendance', icon: Calendar },
     { name: 'Exams & Results', href: '/student/exams', icon: BookOpen },
-    { name: 'Library', href: '/student/library', icon: BookOpen },
+    { name: 'Homework', href: '/student/homework', icon: BookOpen },
+    { name: 'Notice Board', href: '/notices', icon: MessageSquare },
   ]
 };
 

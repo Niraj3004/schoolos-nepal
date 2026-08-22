@@ -200,3 +200,62 @@ export const verifySlip = async (req: Request, res: Response) => {
     return errorResponse(res, 'BAD_REQUEST', error.message, null, 400);
   }
 };
+
+export const getInvoices = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { classId, monthBS, status, page = 1, limit = 20 } = req.query;
+
+  const query: any = { schoolId };
+  if (classId) {
+    // Need to find students in this class first
+    const students = await Student.find({ schoolId, currentClassId: classId as string }, '_id');
+    query.studentId = { $in: students.map(s => s._id) };
+  }
+  if (monthBS) query.monthBS = monthBS as string;
+  if (status) query.status = status as string;
+
+  const invoices = await StudentInvoice.find(query)
+    .populate('studentId', 'firstName lastName admissionNumber currentClassId currentSectionId')
+    .sort({ createdAt: -1 })
+    .skip((Number(page) - 1) * Number(limit))
+    .limit(Number(limit));
+
+  const total = await StudentInvoice.countDocuments(query);
+
+  return successResponse(res, { invoices, total, page: Number(page) }, 'Invoices retrieved');
+};
+
+export const getMyInvoices = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const userId = req.user?.userId;
+
+  // Find parent and their children
+  const parent = await Parent.findOne({ schoolId, userId });
+  if (!parent) return errorResponse(res, 'NOT_FOUND', 'Parent profile not found', null, 404);
+
+  const invoices = await StudentInvoice.find({
+    schoolId,
+    studentId: { $in: parent.children }
+  })
+    .populate('studentId', 'firstName lastName admissionNumber')
+    .sort({ createdAt: -1 });
+
+  return successResponse(res, invoices, 'Your invoices retrieved');
+};
+
+export const getInvoiceById = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+
+  const invoice = await StudentInvoice.findOne({ _id: id, schoolId })
+    .populate('studentId', 'firstName lastName admissionNumber currentClassId currentSectionId');
+
+  if (!invoice) return errorResponse(res, 'NOT_FOUND', 'Invoice not found', null, 404);
+
+  // Also get payment slips for this invoice
+  const slips = await FeePaymentSlip.find({ invoiceId: id, schoolId })
+    .populate('verifiedBy', 'email')
+    .sort({ createdAt: -1 });
+
+  return successResponse(res, { invoice, slips }, 'Invoice details retrieved');
+};

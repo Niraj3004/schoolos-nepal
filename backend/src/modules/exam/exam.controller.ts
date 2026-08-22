@@ -189,3 +189,21 @@ export const getReportCard = async (req: Request, res: Response) => {
     remarks: aggregateGPA >= 3.6 ? "Outstanding performance!" : aggregateGPA >= 2.4 ? "Good effort." : "Needs improvement."
   }, 'Report card generated successfully');
 };
+
+export const getExamMarks = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { examId, classId, sectionId, subjectId } = req.query;
+
+  const query: any = { schoolId };
+  if (examId) query.examId = examId;
+  if (classId) query.classId = classId;
+  if (sectionId) query.sectionId = sectionId;
+  if (subjectId) query.subjectId = subjectId;
+
+  const marks = await MarkEntry.find(query)
+    .populate('studentId', 'firstName lastName rollNumber admissionNumber')
+    .populate('subjectId', 'name code theoryFullMarks practicalFullMarks')
+    .sort({ 'studentId.rollNumber': 1 });
+
+  return successResponse(res, marks, 'Exam marks retrieved');
+};
