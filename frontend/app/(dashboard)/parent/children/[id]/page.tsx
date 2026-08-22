@@ -25,12 +25,10 @@ export default function ChildDetailsPage({ params }: { params: { id: string } })
     queryFn: () => api.get(`/attendance/student/${childId}`),
   });
   
-  const attendanceRecords = (attendanceRes as any)?.data || [];
-  
-  // Calculate attendance stats
-  const presentCount = attendanceRecords.filter((r: any) => r.status === 'PRESENT').length;
-  const totalDays = attendanceRecords.length;
-  const attendancePercentage = totalDays === 0 ? 0 : Math.round((presentCount / totalDays) * 100);
+  const attData = (attendanceRes as any)?.data || { totalDays: 0, presentDays: 0, absentDays: 0, percentage: 0 };
+  const presentCount = attData.presentDays || 0;
+  const totalDays = attData.totalDays || 0;
+  const attendancePercentage = Math.round(Number(attData.percentage || 0));
 
   // Fetch exams
   const { data: examsRes, isLoading: examsLoading } = useQuery({
@@ -80,21 +78,7 @@ export default function ChildDetailsPage({ params }: { params: { id: string } })
                </div>
              </div>
              
-             <h4 className="text-sm font-semibold mb-3">Recent Records</h4>
-             {attendanceRecords.length === 0 ? (
-               <p className="text-sm text-gray-500 italic">No attendance records yet.</p>
-             ) : (
-               <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
-                 {attendanceRecords.slice(0, 5).map((r: any) => (
-                    <div key={r._id} className="flex justify-between items-center p-2 border rounded text-sm">
-                      <span className="font-medium text-gray-700">{r.dateBS}</span>
-                      {r.status === 'PRESENT' && <span className="text-success flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Present</span>}
-                      {r.status === 'ABSENT' && <span className="text-danger flex items-center gap-1"><XCircle className="h-3 w-3" /> Absent</span>}
-                      {r.status === 'LATE' && <span className="text-warning flex items-center gap-1"><AlertCircle className="h-3 w-3" /> Late</span>}
-                    </div>
-                 ))}
-               </div>
-             )}
+             {/* Note: Detailed recent records are only available via the full class attendance endpoint. */}
           </CardContent>
         </Card>
 

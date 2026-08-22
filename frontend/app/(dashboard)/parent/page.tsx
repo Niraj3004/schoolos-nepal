@@ -19,10 +19,8 @@ function ChildCard({ child }: { child: any }) {
     queryKey: ['child-attendance', child._id],
     queryFn: () => api.get(`/attendance/student/${child._id}`),
   });
-  const records = (attendanceRes as any)?.data || [];
-  const presentCount = records.filter((r: any) => r.status === 'PRESENT').length;
-  const totalDays = records.length;
-  const attendancePct = totalDays === 0 ? 0 : Math.round((presentCount / totalDays) * 100);
+  const attData = (attendanceRes as any)?.data || { totalDays: 0, presentDays: 0, absentDays: 0, percentage: 0 };
+  const pct = Math.round(Number(attData.percentage || 0));
 
   const { data: feesRes } = useQuery({
     queryKey: ['child-fees', child._id],
@@ -62,15 +60,15 @@ function ChildCard({ child }: { child: any }) {
             <div className="bg-emerald-50 rounded-xl p-3 text-center">
               {attLoading ? <Spinner size="sm" /> : (
                 <>
-                  <div className={`text-xl font-bold ${attendancePct >= 75 ? 'text-emerald-600' : 'text-red-500'}`}>
-                    {attendancePct}%
+                  <div className={`text-xl font-bold ${pct >= 75 ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {pct}%
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">Attendance</div>
                 </>
               )}
             </div>
             <div className="bg-blue-50 rounded-xl p-3 text-center">
-              <div className="text-xl font-bold text-blue-600">{presentCount}</div>
+              <div className="text-xl font-bold text-blue-600">{attData.presentDays}</div>
               <div className="text-xs text-slate-500 mt-0.5">Days Present</div>
             </div>
             <div className="bg-slate-50 rounded-xl p-3 text-center">
@@ -91,15 +89,15 @@ function ChildCard({ child }: { child: any }) {
           </div>
 
           {/* Attendance bar */}
-          {!attLoading && totalDays > 0 && (
+          {!attLoading && attData.totalDays > 0 && (
             <div className="mb-4">
               <div className="w-full bg-slate-100 rounded-full h-2">
                 <div
-                  className={`h-2 rounded-full transition-all duration-700 ${attendancePct >= 75 ? 'bg-emerald-500' : 'bg-red-500'}`}
-                  style={{ width: `${attendancePct}%` }}
+                  className={`h-2 rounded-full transition-all duration-700 ${pct >= 75 ? 'bg-emerald-500' : 'bg-red-500'}`}
+                  style={{ width: `${pct}%` }}
                 />
               </div>
-              {attendancePct < 75 && (
+              {pct < 75 && (
                 <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                   <XCircle className="h-3 w-3" /> Attendance below 75% — needs improvement
                 </p>

@@ -21,13 +21,11 @@ export default function StudentAttendancePage() {
     enabled: !!student?._id,
   });
 
-  const records = (attendanceRes as any)?.data || [];
-
-  const presentCount = records.filter((r: any) => r.status === 'PRESENT').length;
-  const absentCount = records.filter((r: any) => r.status === 'ABSENT').length;
-  const lateCount = records.filter((r: any) => r.status === 'LATE').length;
-  const totalDays = records.length;
-  const attendancePercentage = totalDays === 0 ? 0 : Math.round((presentCount / totalDays) * 100);
+  const attData = (attendanceRes as any)?.data || { totalDays: 0, presentDays: 0, absentDays: 0, percentage: 0 };
+  const presentCount = attData.presentDays || 0;
+  const absentCount = attData.absentDays || 0;
+  const totalDays = attData.totalDays || 0;
+  const attendancePercentage = Math.round(Number(attData.percentage || 0));
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -70,32 +68,6 @@ export default function StudentAttendancePage() {
               <CardContent><div className="text-2xl font-bold">{attendancePercentage}%</div></CardContent>
             </Card>
           </div>
-
-          <Card>
-            <CardHeader><CardTitle>Recent Records</CardTitle></CardHeader>
-            <CardContent>
-              {records.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">No attendance records found yet.</div>
-              ) : (
-                <div className="space-y-4">
-                  {records.slice(0, 10).map((r: any) => (
-                    <div key={r._id} className="flex justify-between items-center p-3 border rounded-md">
-                      <div>
-                        <p className="font-medium text-gray-900">{r.dateBS}</p>
-                        <p className="text-xs text-gray-500">Recorded on {new Date(r.dateAD).toLocaleDateString()}</p>
-                      </div>
-                      <div>
-                        {r.status === 'PRESENT' && <span className="bg-success/10 text-success px-3 py-1 rounded-full text-sm font-medium">Present</span>}
-                        {r.status === 'ABSENT' && <span className="bg-danger/10 text-danger px-3 py-1 rounded-full text-sm font-medium">Absent</span>}
-                        {r.status === 'LATE' && <span className="bg-warning/10 text-warning px-3 py-1 rounded-full text-sm font-medium">Late</span>}
-                        {r.status === 'HALF_DAY' && <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">Half Day</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </>
       )}
     </div>

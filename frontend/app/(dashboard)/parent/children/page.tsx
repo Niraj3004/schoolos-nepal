@@ -19,10 +19,11 @@ function ChildCard({ child, index }: { child: any; index: number }) {
     queryKey: ['child-att', child._id],
     queryFn: () => api.get(`/attendance/student/${child._id}`),
   });
-  const records = (attendanceRes as any)?.data || [];
-  const presentCount = records.filter((r: any) => r.status === 'PRESENT').length;
-  const totalDays = records.length;
-  const pct = totalDays === 0 ? 0 : Math.round((presentCount / totalDays) * 100);
+  const attData = (attendanceRes as any)?.data || { totalDays: 0, presentDays: 0, absentDays: 0, percentage: 0 };
+  const presentCount = attData.presentDays || 0;
+  const absentCount = attData.absentDays || 0;
+  const totalDays = attData.totalDays || 0;
+  const pct = Math.round(Number(attData.percentage || 0));
 
   const statColor = pct >= 75 ? 'text-emerald-600' : 'text-red-500';
   const barColor = pct >= 75 ? 'bg-emerald-500' : 'bg-red-500';
@@ -87,7 +88,7 @@ function ChildCard({ child, index }: { child: any; index: number }) {
             </div>
             <div className="bg-red-50 rounded-xl p-2.5 text-center">
               <div className="text-base font-bold text-red-500">
-                {records.filter((r: any) => r.status === 'ABSENT').length}
+                {absentCount}
               </div>
               <div className="text-[10px] text-slate-500">Absent</div>
             </div>

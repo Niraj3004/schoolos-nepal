@@ -36,10 +36,11 @@ export default function StudentDashboard() {
     queryFn: () => api.get(`/attendance/student/${student._id}`),
     enabled: !!student?._id,
   });
-  const records = (attendanceRes as any)?.data || [];
-  const presentCount = records.filter((r: any) => r.status === 'PRESENT').length;
-  const totalDays = records.length;
-  const attendancePct = totalDays === 0 ? 0 : Math.round((presentCount / totalDays) * 100);
+  const attData = (attendanceRes as any)?.data || { totalDays: 0, presentDays: 0, absentDays: 0, percentage: 0 };
+  const presentCount = attData.presentDays || 0;
+  const totalDays = attData.totalDays || 0;
+  const absentCount = attData.absentDays || 0;
+  const attendancePct = Math.round(Number(attData.percentage || 0));
 
   // Fetch exams
   const { data: examsRes } = useQuery({
@@ -200,9 +201,9 @@ export default function StudentDashboard() {
               )}
               <div className="grid grid-cols-3 gap-3 mt-4">
                 {[
+                  { label: 'Total Days', val: totalDays, color: 'text-blue-600', bg: 'bg-blue-50' },
                   { label: 'Present', val: presentCount, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                  { label: 'Absent', val: records.filter((r: any) => r.status === 'ABSENT').length, color: 'text-red-500', bg: 'bg-red-50' },
-                  { label: 'Late', val: records.filter((r: any) => r.status === 'LATE').length, color: 'text-amber-500', bg: 'bg-amber-50' },
+                  { label: 'Absent', val: absentCount, color: 'text-red-500', bg: 'bg-red-50' },
                 ].map(item => (
                   <div key={item.label} className={`${item.bg} rounded-xl p-3 text-center`}>
                     <div className={`text-xl font-bold ${item.color}`}>{item.val}</div>
