@@ -160,7 +160,7 @@ function SubmitHomeworkModal({ homework, isOpen, onClose, onSuccess }: any) {
 
     try {
       const formData = new FormData();
-      if (comments) formData.append('comments', comments);
+      if (comments) formData.append('submissionText', comments);
       files.forEach(f => formData.append('files', f));
 
       await apiFetch(`/homework/${homework._id}/submit`, {

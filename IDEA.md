@@ -68,40 +68,36 @@ SchoolOS is a multi-tenant school management SaaS platform built with:
 - [x] Ensure Teacher grading workflows (Exams & Homework) are seamless.
 - [x] Ensure Admin Finance (Fee collection) works end-to-end.
 
-### Phase 4 — Frontend Roles (Student & Parent) (CURRENT)
-- [ ] Complete `/student` dashboard (View attendance, grades, homework).
-- [ ] Complete `/parent` dashboard (View children, pay fees).
+### Phase 4 — Frontend Roles (Student & Parent) (COMPLETED)
+- [x] Complete `/student` dashboard (View attendance, grades, homework).
+- [x] Complete `/parent` dashboard (View children, pay fees).
 
-### Phase 5 — Complete Integration & Testing
+### Phase 5 — Complete Integration & Testing (CURRENT)
 - [ ] Test Auth -> Admin -> Teacher -> Student data flow.
 
 
 ---
-## Status Update (Phase 3 Completed)
+## Status Update (Phase 4 Completed)
 
-**CURRENT PHASE:** Phase 4 (Frontend Roles - Student & Parent)
+**CURRENT PHASE:** Phase 5 (Complete Integration & Testing)
 
 **COMPLETED:** 
 - Phase 1 (Verification)
 - Phase 2 (Backend Fixes)
 - Phase 3 (Frontend Core Fixes)
+- Phase 4 (Frontend Roles - Student & Parent)
 
-**FIXED (Phase 3):**
-- Built `SubmissionsModal.tsx` for Teachers to view, download, and evaluate student homework.
-- Wired the "View Submissions" button into the Teacher Homework dashboard.
-- Built `GenerateInvoiceModal.tsx` for Admins to trigger monthly fee generation.
-- Wired the Admin Finance dashboard to the correct generation API endpoints.
+**FIXED (Phase 4):**
+- Built `/student/page.tsx` home dashboard.
+- Built `/student/attendance/page.tsx` showing present/absent stats.
+- Built `/student/exams/page.tsx` with dynamic Report Card generation logic matching backend.
+- Fixed `FormData` payload mapping bug in Student Homework submission.
+- Built `/parent/page.tsx` to list all linked children.
+- Built `/parent/children/[id]` showing detailed child attendance and exams.
+- Built `/parent/children/[id]/report-card/[examId]` for parent viewing of report cards.
+- Verified Parent Fee slips dashboard payload matching backend expectations.
 
-**FRONTEND:**
-- Teacher Homework grading UI is fully operational.
-- Admin Finance UI is fully operational for generating invoices.
-
-**APIS TESTED:**
-- `GET /api/v1/homework/:id/submissions`
-- `POST /api/v1/finance/invoices/generate-monthly`
-
-**NEXT PHASE:** Phase 4 — Frontend Roles (Student & Parent)
+**NEXT PHASE:** Phase 5 — Complete Integration & Testing
 
 **NEXT TASK:**
-- Complete the Student Dashboard (View attendance, grades, homework).
-- Complete the Parent Dashboard (View children, pay fees).
+- Perform end-to-end testing of Auth -> Admin -> Teacher -> Student data flow to ensure there are no breaking bugs across the ecosystem.
