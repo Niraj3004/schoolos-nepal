@@ -113,7 +113,7 @@ function ReportCardModal({ examId, studentId, isOpen, onClose }: { examId: strin
   const report = (reportRes as any)?.data;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Student Report Card" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Student Report Card">
       <div className="max-h-[70vh] overflow-y-auto">
         {isLoading ? (
           <div className="flex justify-center p-8"><Spinner /></div>

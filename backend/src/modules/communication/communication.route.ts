@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { 
   createNotice, getNotices, 
   createEvent, getEvents, 
-  getNotifications, markRead, markAllRead 
+  getNotifications, markRead, markAllRead,
+  sendFeeReminders, sendAbsenceReminders
 } from './communication.controller';
 import { validate } from '../../middlewares/validate';
 import { createNoticeSchema, createEventSchema } from './communication.validation';
@@ -29,5 +30,8 @@ router.get('/events', asyncErrorHandler(getEvents));
 router.get('/notifications', asyncErrorHandler(getNotifications));
 router.patch('/notifications/mark-all-read', asyncErrorHandler(markAllRead));
 router.patch('/notifications/:id/read', asyncErrorHandler(markRead));
+
+router.post('/reminders/fees', requireRole(['ADMIN']), asyncErrorHandler(sendFeeReminders));
+router.post('/reminders/absences', requireRole(['ADMIN']), asyncErrorHandler(sendAbsenceReminders));
 
 export default router;

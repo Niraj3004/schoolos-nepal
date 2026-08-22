@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -13,8 +14,10 @@ import { globalErrorHandler } from './middlewares/error';
 import { successResponse } from './utils/response';
 import cookieParser from 'cookie-parser';
 import routes from './routes';
+import { initSocket } from './utils/socket';
 
 const app = express();
+const server = http.createServer(app);
 
 // Security Middlewares
 app.use(helmet());
@@ -69,7 +72,9 @@ app.use(globalErrorHandler);
 const startServer = async () => {
   await connectDB();
   
-  app.listen(env.PORT, () => {
+  initSocket(server);
+  
+  server.listen(env.PORT, () => {
     console.log(`🚀 Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
   });
 };

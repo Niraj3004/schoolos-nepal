@@ -6,6 +6,10 @@ import { sanitizeRichText } from '../../utils/sanitize';
 import { uploadToCloudinary } from '../../utils/cloudinaryStream';
 import { successResponse, errorResponse } from '../../utils/response';
 import mongoose from 'mongoose';
+import { StudentInvoice } from '../finance/finance.model';
+import { AttendanceRecord } from '../attendance/attendance.model';
+import { sendMockEmail } from '../../utils/mailer';
+import { emitToUser } from '../../utils/socket';
 
 // --- NOTICES ---
 export const createNotice = async (req: Request, res: Response) => {
@@ -163,4 +167,83 @@ export const markAllRead = async (req: Request, res: Response) => {
   );
 
   return successResponse(res, null, 'All notifications marked as read');
+};
+
+export const sendFeeReminders = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const currentYear = await AcademicYear.findOne({ schoolId, isCurrent: true });
+  if (!currentYear) return errorResponse(res, 'BAD_REQUEST', 'No active academic year found', null, 400);
+
+  const pendingInvoices = await StudentInvoice.find({ 
+    schoolId, 
+    academicYearId: currentYear._id,
+    status: { $in: ['UNPAID', 'PARTIALLY_PAID'] }
+  }).populate({
+    path: 'studentId',
+    populate: { path: 'parentId', populate: { path: 'userId' } }
+  });
+
+  let sentCount = 0;
+  for (const invoice of pendingInvoices) {
+    const student: any = invoice.studentId;
+    if (student && student.parentId && student.parentId.userId) {
+      const parentUser = student.parentId.userId;
+      const email = parentUser.email;
+      
+      const text = `Dear Parent, this is a reminder that fee invoice for ${student.firstName} is pending. Amount due: Rs. ${invoice.totalPayable - invoice.paidAmount}.`;
+      await sendMockEmail(email, 'Fee Reminder', text, `<p>${text}</p>`);
+      
+      const notification = await AppNotification.create({
+        schoolId,
+        recipientUserId: parentUser._id,
+        title: 'Fee Reminder',
+        message: text,
+        type: 'FEE_DUE'
+      });
+      
+      emitToUser(parentUser._id, 'new_notification', notification);
+      sentCount++;
+    }
+  }
+
+  return successResponse(res, { sentCount }, `Fee reminders sent to ${sentCount} parents.`);
+};
+
+export const sendAbsenceReminders = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const todayBS = "2083-05-12"; 
+  
+  const attendanceRecords = await AttendanceRecord.find({ schoolId, dateBS: todayBS, type: 'DAILY' })
+    .populate({
+      path: 'entries.studentId',
+      populate: { path: 'parentId', populate: { path: 'userId' } }
+    });
+
+  let sentCount = 0;
+  for (const record of attendanceRecords) {
+    const absents = record.entries.filter((e: any) => e.status === 'ABSENT');
+    for (const entry of absents) {
+      const student: any = entry.studentId;
+      if (student && student.parentId && student.parentId.userId) {
+        const parentUser = student.parentId.userId;
+        const email = parentUser.email;
+        
+        const text = `Dear Parent, ${student.firstName} is marked ABSENT today (${todayBS}).`;
+        await sendMockEmail(email, 'Absence Alert', text, `<p>${text}</p>`);
+        
+        const notification = await AppNotification.create({
+          schoolId,
+          recipientUserId: parentUser._id,
+          title: 'Absence Alert',
+          message: text,
+          type: 'ATTENDANCE_ABSENT'
+        });
+        
+        emitToUser(parentUser._id, 'new_notification', notification);
+        sentCount++;
+      }
+    }
+  }
+
+  return successResponse(res, { sentCount }, `Absence reminders sent to ${sentCount} parents.`);
 };

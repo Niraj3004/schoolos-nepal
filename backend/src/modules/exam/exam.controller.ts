@@ -28,9 +28,6 @@ export const submitBulkMarks = async (req: Request, res: Response) => {
   const subject = await Subject.findOne({ _id: subjectId, schoolId });
   if (!subject) return errorResponse(res, 'NOT_FOUND', 'Subject not found', null, 404);
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     for (const entry of marks) {
       if (entry.theoryMarksObtained > subject.theoryFullMarks) {
@@ -49,22 +46,20 @@ export const submitBulkMarks = async (req: Request, res: Response) => {
           sectionId,
           subjectId,
           studentId: entry.studentId,
-          theoryMarksObtained: entry.theoryMarksObtained || 0,
-          practicalMarksObtained: entry.practicalMarksObtained || 0,
+          theoryMarksObtained: entry.theoryMarksObtained,
+          practicalMarksObtained: entry.practicalMarksObtained,
+          totalObtained: entry.theoryMarksObtained + entry.practicalMarksObtained,
           isAbsent: entry.isAbsent || false,
+          remarks: entry.remarks,
           evaluatedBy: userId
         },
-        { upsert: true, new: true, session }
+        { upsert: true, new: true }
       );
     }
     
-    await session.commitTransaction();
-    session.endSession();
-    return successResponse(res, null, 'Bulk marks submitted successfully');
+    return successResponse(res, null, 'Bulk marks submitted successfully', 201);
   } catch (error: any) {
-    await session.abortTransaction();
-    session.endSession();
-    return errorResponse(res, 'BAD_REQUEST', error.message, null, 400);
+    return errorResponse(res, 'INTERNAL_SERVER_ERROR', error.message, null, 500);
   }
 };
 

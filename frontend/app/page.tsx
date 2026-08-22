@@ -1,403 +1,479 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { ArrowRight, Calendar, CheckCircle2, CreditCard, GraduationCap, Mountain, ShieldCheck, Users } from "lucide-react";
+import { 
+  ArrowRight, CheckCircle2, CreditCard, GraduationCap, ShieldCheck, Zap, 
+  Terminal, BarChart3, Fingerprint, Mountain, Users, Clock, Globe, 
+  Smartphone, BookOpen, Quote, MessageSquare, MapPin
+} from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 export default function LandingPage() {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.05], [1, 0.95]);
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
+  
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-background text-foreground overflow-x-hidden">
+    <div ref={containerRef} className="min-h-screen font-sans bg-slate-50 text-slate-900 selection:bg-red-500/30 overflow-x-hidden">
       
       {/* Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Mountain className="h-6 w-6 text-accent" />
-            <span className="text-xl font-bold text-primary tracking-tight">SchoolOS Nepal</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="#features" className="hover:text-primary transition-colors">Features</Link>
-            <Link href="#why-us" className="hover:text-primary transition-colors">Why Us?</Link>
-            <Link href="#pricing" className="hover:text-primary transition-colors">Pricing</Link>
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-xl shadow-sm">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="bg-gradient-to-br from-blue-700 to-red-600 p-1.5 rounded-[10px] group-hover:shadow-lg transition-shadow">
+              <Mountain className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-slate-900">School<span className="text-red-600">OS</span></span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <Link href="#features" className="text-slate-600 hover:text-red-600 transition-colors">Features</Link>
+            <Link href="#modules" className="text-slate-600 hover:text-red-600 transition-colors">Modules</Link>
+            <Link href="#testimonials" className="text-slate-600 hover:text-red-600 transition-colors">Testimonials</Link>
+            <Link href="#pricing" className="text-slate-600 hover:text-red-600 transition-colors">Pricing</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium hover:text-primary hidden md:block">Log in</Link>
+            <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 hidden sm:block">Sign in</Link>
             <Link href="/onboarding">
-              <Button className="bg-accent text-accent-foreground hover:bg-accent/90">Get Started</Button>
+              <Button className="bg-slate-900 text-white hover:bg-slate-800 rounded-full h-9 px-5 font-semibold text-sm transition-all hover:scale-105 shadow-sm">
+                Get Started
+              </Button>
             </Link>
           </div>
         </div>
       </header>
 
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative pt-20 pb-32 lg:pt-32 lg:pb-48 overflow-hidden">
-          {/* Background image overlay */}
-          <div className="absolute inset-0 -z-10">
-            <Image 
-              src="/hero-bg.jpg" 
-              alt="Himalayan Background" 
-              fill 
-              className="object-cover opacity-10"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background"></div>
-          </div>
+      <main>
+        {/* 1. Hero Section (Nepali Vibe + Student Image) */}
+        <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-white">
+          {/* Subtle Himalayan/Nepali gradient vibes */}
+          <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-blue-50 via-white to-red-50 -z-10 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -z-10 mix-blend-multiply"></div>
+          
+          <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="container mx-auto px-6 z-10 relative">
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+              
+              {/* Left Content */}
+              <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex-1 text-center lg:text-left">
+                <motion.div variants={fadeInUp as any} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-red-100 shadow-sm text-slate-600 text-xs font-semibold mb-8">
+                  <MapPin className="h-4 w-4 text-red-500" />
+                  Proudly Built in Nepal, for Nepal
+                </motion.div>
+                
+                <motion.h1 variants={fadeInUp as any} className="text-5xl md:text-6xl lg:text-[75px] font-extrabold tracking-tighter mb-8 leading-[1.1] text-slate-900">
+                  Manage your school with <br className="hidden md:block"/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-red-600">absolute precision.</span>
+                </motion.h1>
+                
+                <motion.p variants={fadeInUp as any} className="text-lg md:text-xl text-slate-500 max-w-xl mx-auto lg:mx-0 mb-10 font-medium leading-relaxed">
+                  Replace your fragmented software with one unified platform. Native BS calendars, NEB grading, smart finance, and instant parent notifications.
+                </motion.p>
+                
+                <motion.div variants={fadeInUp as any} className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-center lg:justify-start">
+                  <Link href="/onboarding" className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full sm:w-auto bg-red-600 text-white hover:bg-red-700 h-14 px-8 text-base rounded-full shadow-lg shadow-red-600/20 transition-all hover:-translate-y-0.5">
+                      Start Your Free Trial
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href="#modules" className="w-full sm:w-auto">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base rounded-full bg-white border-slate-200 hover:bg-slate-50 text-slate-700 shadow-sm transition-all hover:-translate-y-0.5">
+                      Explore Platform
+                    </Button>
+                  </Link>
+                </motion.div>
+              </motion.div>
 
-          <div className="container mx-auto px-4 text-center">
-            <Badge variant="success" className="mb-6 px-3 py-1">🇳🇵 Proudly Made in Nepal</Badge>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-primary tracking-tight max-w-4xl mx-auto mb-6">
-              Namaste to the Future of <br className="hidden md:block"/> Nepali Education
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-              The modern operating system built specifically for schools in Nepal. Manage smart attendance, BS calendars, Nepali GPA, and manual QR fee collections all in one unified platform.
-            </p>
+              {/* Right Content (Transparent Floating Hero Image) */}
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+                className="flex-1 w-full relative flex items-center justify-center"
+              >
+                <div className="relative w-full max-w-lg">
+                  <img 
+                    src="/hero.avif" 
+                    alt="SchoolOS Hero" 
+                    className="object-contain w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] transform hover:scale-105 transition-transform duration-700"
+                  />
+                  
+                  {/* Floating badges */}
+                  <div className="absolute top-10 -left-6 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-2xl shadow-xl border border-slate-100 z-20 animate-bounce-slow flex items-center gap-3">
+                    <span className="flex h-3 w-3 rounded-full bg-red-600"></span>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Region</p>
+                      <p className="text-sm font-bold text-slate-900">Kathmandu, NP</p>
+                    </div>
+                  </div>
+                  <div className="absolute bottom-10 -right-6 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-2xl shadow-xl border border-slate-100 z-20 animate-bounce-delayed flex items-center gap-3">
+                    <CheckCircle2 className="h-6 w-6 text-blue-600" />
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Standards</p>
+                      <p className="text-sm font-bold text-slate-900">NEB Compliant</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+            </div>
+          </motion.div>
+        </section>
+
+        {/* 2. Core Modules (Features Bento) */}
+        <section id="modules" className="py-24 relative bg-slate-50 border-y border-slate-200">
+          <div className="container mx-auto px-6">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp as any} className="mb-20 text-center">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight text-slate-900">One platform. All your operations.</h2>
+              <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto font-medium">SchoolOS is designed modularly. Use everything, or just what you need.</p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="md:col-span-2 group">
+                <div className="h-full bg-white border border-slate-200 rounded-[2rem] p-8 relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <BookOpen className="w-64 h-64 text-slate-900" />
+                  </div>
+                  <div className="relative z-10 h-full flex flex-col justify-end">
+                    <div className="h-14 w-14 rounded-2xl bg-blue-100 flex items-center justify-center mb-6 shadow-sm border border-blue-200/50 group-hover:scale-110 transition-transform">
+                      <BookOpen className="h-7 w-7 text-blue-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-3 text-slate-900">Academic & Exam Management</h3>
+                    <p className="text-slate-600 leading-relaxed max-w-md font-medium mb-4">
+                      Native support for Nepali grading scales. Teachers enter raw marks, and SchoolOS instantly generates beautiful, NEB-compliant mark ledgers and individual report cards.
+                    </p>
+                    <ul className="space-y-2">
+                       <li className="flex items-center gap-2 text-sm text-slate-700 font-medium"><CheckCircle2 className="h-4 w-4 text-blue-500"/> Automated GPA calculation</li>
+                       <li className="flex items-center gap-2 text-sm text-slate-700 font-medium"><CheckCircle2 className="h-4 w-4 text-blue-500"/> One-click report card printing</li>
+                    </ul>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="group">
+                <div className="h-full bg-white border border-slate-200 rounded-[2rem] p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="h-14 w-14 rounded-2xl bg-emerald-100 flex items-center justify-center mb-6 shadow-sm border border-emerald-200/50 group-hover:scale-110 transition-transform">
+                    <CreditCard className="h-7 w-7 text-emerald-600" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-slate-900">Finance Engine</h3>
+                  <p className="text-slate-600 leading-relaxed text-sm font-medium">Automated fee generation, manual QR payment verification, and comprehensive ledger management. Stop chasing paper receipts.</p>
+                </div>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="group">
+                <div className="h-full bg-white border border-slate-200 rounded-[2rem] p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="h-14 w-14 rounded-2xl bg-amber-100 flex items-center justify-center mb-6 shadow-sm border border-amber-200/50 group-hover:scale-110 transition-transform">
+                    <Users className="h-7 w-7 text-amber-600" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-slate-900">Parent Portals</h3>
+                  <p className="text-slate-600 leading-relaxed text-sm font-medium">Give parents an intuitive dashboard to track attendance, pay fees, and view their child's academic progress in real-time.</p>
+                </div>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="md:col-span-2 group">
+                <div className="h-full bg-white border border-slate-200 rounded-[2rem] p-8 relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-red-100 rounded-full blur-3xl group-hover:bg-red-200 transition-colors opacity-60"></div>
+                  <div className="relative z-10 h-full flex flex-col justify-end">
+                    <div className="h-14 w-14 rounded-2xl bg-red-100 flex items-center justify-center mb-6 shadow-sm border border-red-200/50 group-hover:scale-110 transition-transform">
+                      <Zap className="h-7 w-7 text-red-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-3 text-slate-900">WebSocket Push Notifications</h3>
+                    <p className="text-slate-600 leading-relaxed max-w-md font-medium mb-4">
+                      Forget expensive SMS gateways. SchoolOS uses real-time WebSockets to deliver instant push notifications to the parent app for absences, fee dues, and urgent notices.
+                    </p>
+                    <ul className="space-y-2">
+                       <li className="flex items-center gap-2 text-sm text-slate-700 font-medium"><CheckCircle2 className="h-4 w-4 text-red-500"/> Zero-latency delivery</li>
+                       <li className="flex items-center gap-2 text-sm text-slate-700 font-medium"><CheckCircle2 className="h-4 w-4 text-red-500"/> No per-message SMS costs</li>
+                    </ul>
+                  </div>
+                </div>
+              </motion.div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* 3. How It Works (Steps) */}
+        <section className="py-24 bg-white border-y border-slate-200 relative overflow-hidden">
+           <div className="container mx-auto px-6">
+              <div className="text-center mb-16">
+                 <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight text-slate-900">How SchoolOS Works</h2>
+                 <p className="text-slate-500 text-lg font-medium">From setup to daily operations in three simple steps.</p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto relative">
+                 {/* Connecting line for desktop */}
+                 <div className="hidden md:block absolute top-[45px] left-[15%] right-[15%] h-0.5 bg-slate-100 -z-10"></div>
+                 
+                 {[
+                   { step: "1", title: "Setup & Onboarding", desc: "Our team helps you import your existing student data, set up your fee structures, and configure your academic calendar in minutes.", icon: Globe },
+                   { step: "2", title: "Daily Operations", desc: "Teachers take attendance and post homework. Admins manage fees and approve leave requests. Everything syncs instantly.", icon: Clock },
+                   { step: "3", title: "Insights & Growth", desc: "Parents stay engaged through their portal while management gets bird's-eye analytics on school performance and financial health.", icon: BarChart3 }
+                 ].map((item, i) => (
+                   <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.2 }} className="text-center relative bg-white">
+                      <div className="w-24 h-24 mx-auto bg-white border-[8px] border-slate-50 shadow-lg rounded-full flex items-center justify-center mb-6 relative z-10 group hover:border-red-50 transition-colors">
+                         <item.icon className="h-8 w-8 text-blue-700 group-hover:scale-110 transition-transform" />
+                         <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                           {item.step}
+                         </div>
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+                      <p className="text-slate-600 font-medium leading-relaxed">{item.desc}</p>
+                   </motion.div>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* 4. Ecosystem & Integrations (Nepal Vibe Focus) */}
+        <section className="py-24 bg-slate-50 relative overflow-hidden">
+           {/* Decor */}
+           <div className="absolute -left-32 -bottom-32 opacity-10 pointer-events-none">
+             <Mountain className="w-[400px] h-[400px] text-slate-900" />
+           </div>
+           
+           <div className="container mx-auto px-6 relative z-10">
+             <div className="flex flex-col md:flex-row items-center gap-16 max-w-6xl mx-auto">
+                <div className="flex-1 space-y-8">
+                  <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center border border-slate-200 shadow-sm">
+                    <Mountain className="w-8 h-8 text-red-600" />
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900">Tailored for the Nepali Ecosystem.</h2>
+                  <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                    We understand local challenges. That's why we natively support the Bikram Sambat (BS) calendar, allow manual QR receipt uploads for parents without digital wallets, and map to local grading systems.
+                  </p>
+                  <div className="pt-4 flex items-center gap-4">
+                     <Button variant="outline" className="bg-white border-slate-200 text-slate-700 font-semibold shadow-sm">
+                       Learn about Local Features
+                     </Button>
+                  </div>
+                </div>
+                <div className="flex-1 w-full">
+                   <div className="grid grid-cols-2 gap-4">
+                      {[
+                        { title: "Native BS Calendar", desc: "No more confusing AD/BS date conversions." },
+                        { title: "QR Payment Proofs", desc: "Parents can upload eSewa/Khalti transfer screenshots." },
+                        { title: "NEB Ledgers", desc: "Export marksheets perfectly formatted for government." },
+                        { title: "Role-Based Access", desc: "Strict permissions for SuperAdmins, Teachers, and Parents." }
+                      ].map((item, i) => (
+                        <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                           <CheckCircle2 className="h-6 w-6 text-red-500 mb-4" />
+                           <h4 className="font-bold text-slate-900 mb-2">{item.title}</h4>
+                           <p className="text-sm text-slate-500 font-medium">{item.desc}</p>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+             </div>
+           </div>
+        </section>
+
+        {/* 5. Testimonials */}
+        <section id="testimonials" className="py-24 bg-white border-y border-slate-200">
+           <div className="container mx-auto px-6">
+              <div className="text-center mb-16">
+                 <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight text-slate-900">Loved by Educators.</h2>
+                 <p className="text-slate-500 text-lg font-medium">Don't just take our word for it.</p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                 {[
+                   { name: "Rajesh Maharjan", role: "Principal, Everest Academy", text: "SchoolOS completely eliminated our end-of-term chaos. Grading that used to take weeks now takes a single day." },
+                   { name: "Sita Sharma", role: "Admin, Kathmandu Global", text: "The finance engine is brilliant. Parents upload their QR payment receipts, and we verify them with one click. Simple and perfect for Nepal." },
+                   { name: "Bikash Shrestha", role: "Director, Apex High", text: "The real-time push notifications are a game changer. Parents are always informed about absences, and we save thousands on SMS costs." }
+                 ].map((t, i) => (
+                   <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                     <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-200 h-full flex flex-col relative">
+                       <Quote className="absolute top-8 right-8 h-8 w-8 text-slate-200" />
+                       <div className="flex-1 mb-6">
+                         <p className="text-slate-700 font-medium leading-relaxed italic">"{t.text}"</p>
+                       </div>
+                       <div className="flex items-center gap-4">
+                         <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg border border-blue-200">
+                           {t.name.charAt(0)}
+                         </div>
+                         <div>
+                           <h4 className="font-bold text-slate-900">{t.name}</h4>
+                           <p className="text-xs font-semibold text-slate-500">{t.role}</p>
+                         </div>
+                       </div>
+                     </div>
+                   </motion.div>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* 6. Pricing */}
+        <section id="pricing" className="py-32 relative bg-slate-50">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-20">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight text-slate-900">Predictable Pricing.</h2>
+              <p className="text-slate-500 text-lg font-medium">No hidden implementation fees. Pay based on student enrollment.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-center">
+              {[
+                { name: "Starter", desc: "For small institutions", price: "15k", features: ["Up to 300 Students", "Academics & Exams", "Community Support"], highlighted: false },
+                { name: "Growth", desc: "For standard schools", price: "35k", features: ["Up to 1,000 Students", "Finance & Parent Portals", "Priority Support"], highlighted: true },
+                { name: "Enterprise", desc: "For large colleges", price: "Custom", features: ["Unlimited Students", "Custom Branding", "Dedicated Account Manager"], highlighted: false },
+              ].map((tier, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="h-full">
+                  <div className={`relative h-full flex flex-col p-8 rounded-3xl transition-transform ${tier.highlighted ? 'bg-blue-700 border border-blue-600 md:-translate-y-4 z-10 shadow-2xl shadow-blue-700/30' : 'bg-white border border-slate-200 hover:shadow-lg'}`}>
+                    {tier.highlighted && (
+                      <div className="absolute -top-4 right-8 bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-md">
+                        Most Popular
+                      </div>
+                    )}
+                    <h3 className={`text-2xl font-bold mb-2 ${tier.highlighted ? 'text-white' : 'text-slate-900'}`}>{tier.name}</h3>
+                    <p className={`text-sm mb-8 font-medium ${tier.highlighted ? 'text-blue-200' : 'text-slate-500'}`}>{tier.desc}</p>
+                    <div className="flex items-baseline gap-1 mb-8">
+                       {tier.price !== "Custom" && <span className={`text-xl font-bold ${tier.highlighted ? 'text-blue-200' : 'text-slate-400'}`}>Rs.</span>}
+                       <span className={`text-5xl font-extrabold tracking-tight ${tier.highlighted ? 'text-white' : 'text-slate-900'}`}>{tier.price}</span>
+                       {tier.price !== "Custom" && <span className={`font-medium ${tier.highlighted ? 'text-blue-200' : 'text-slate-500'}`}>/yr</span>}
+                    </div>
+                    <ul className="space-y-4 mb-8 flex-1">
+                      {tier.features.map((f, j) => (
+                        <li key={j} className="flex items-center gap-3 text-sm font-medium">
+                          <CheckCircle2 className={`h-5 w-5 shrink-0 ${tier.highlighted ? 'text-blue-300' : 'text-red-600'}`} />
+                          <span className={tier.highlighted ? 'text-blue-50' : 'text-slate-700'}>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button className={`w-full rounded-full h-12 font-bold text-base shadow-sm ${tier.highlighted ? 'bg-white text-blue-900 hover:bg-slate-50' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>
+                      {tier.price === "Custom" ? "Contact Sales" : "Start Building"}
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 7. FAQ Section */}
+        <section className="py-24 bg-white border-y border-slate-200">
+           <div className="container mx-auto px-6 max-w-4xl">
+              <div className="text-center mb-16">
+                 <h2 className="text-3xl font-bold mb-4 tracking-tight text-slate-900">Frequently Asked Questions</h2>
+              </div>
+              <div className="grid md:grid-cols-2 gap-8">
+                 {[
+                   { q: "Is it difficult to migrate from our old system?", a: "Not at all. We provide CSV templates for you to bulk upload students, teachers, and historical exam records. Our support team assists you during onboarding." },
+                   { q: "Do parents need to download a separate app?", a: "SchoolOS provides a mobile-responsive Parent Portal accessible via any browser. You can also deploy it as a PWA (Progressive Web App) to their home screens." },
+                   { q: "How is data secured?", a: "We use MongoDB multi-tenant isolation, ensuring your school's data is logically separated. All passwords and tokens are encrypted with bank-level security." },
+                   { q: "Can we collect fees online?", a: "Yes. Parents can upload screenshots of eSewa/Khalti transfers directly to invoices for admins to approve, making it perfectly suited for Nepal's payment landscape." }
+                 ].map((faq, i) => (
+                   <div key={i} className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                      <div className="flex items-start gap-3 mb-3">
+                         <MessageSquare className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+                         <h4 className="font-bold text-slate-900">{faq.q}</h4>
+                      </div>
+                      <p className="text-slate-600 font-medium text-sm leading-relaxed pl-8">{faq.a}</p>
+                   </div>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* 8. Final CTA */}
+        <section className="py-24 relative overflow-hidden bg-blue-800">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600 rounded-full blur-[120px] -z-10 pointer-events-none opacity-40"></div>
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500 rounded-full blur-[120px] -z-10 pointer-events-none opacity-40"></div>
+          
+          <div className="container mx-auto px-6 text-center z-10 relative">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">Ready to digitize your school?</h2>
+            <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto font-medium">Join over 150+ leading educational institutions across Nepal who trust SchoolOS.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/onboarding">
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-lg group">
-                  Start Your Free Trial
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <Button size="lg" className="bg-red-600 text-white hover:bg-red-700 h-14 px-10 text-base rounded-full font-bold shadow-xl transition-all hover:scale-105 border-0">
+                  Create Account Now
                 </Button>
               </Link>
-              <Link href="#features">
-                <Button variant="outline" size="lg" className="h-14 px-8 text-lg">
-                  Explore Features
+              <Link href="#">
+                <Button size="lg" variant="outline" className="bg-transparent border-blue-300 text-white hover:bg-blue-700 h-14 px-10 text-base rounded-full font-bold transition-all">
+                  Contact Sales
                 </Button>
               </Link>
             </div>
-          </div>
-
-          {/* Floating Mockup */}
-          <div className="mt-16 container mx-auto px-4 relative z-10 perspective-1000">
-            <div className="relative mx-auto max-w-5xl rounded-xl border bg-card shadow-2xl overflow-hidden transform hover:-translate-y-2 transition-transform duration-500">
-              <Image 
-                src="/mockup.jpg" 
-                alt="SchoolOS Dashboard Mockup" 
-                width={1200}
-                height={675}
-                className="w-full h-auto rounded-xl"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Trusted By Logos */}
-        <section className="py-12 border-y bg-card/50">
-          <div className="container mx-auto px-4 text-center">
-            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-8">Trusted by 500+ forward-thinking schools from Mechi to Mahakali</p>
-            <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
-              {/* Dummy logos using text for now */}
-              <div className="text-xl font-bold flex items-center gap-2"><Mountain className="h-6 w-6"/> Everest Academy</div>
-              <div className="text-xl font-bold flex items-center gap-2"><GraduationCap className="h-6 w-6"/> Annapurna School</div>
-              <div className="text-xl font-bold flex items-center gap-2"><Users className="h-6 w-6"/> Lumbini Vidya</div>
-              <div className="text-xl font-bold flex items-center gap-2"><ShieldCheck className="h-6 w-6"/> Gandaki Boarding</div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Grid */}
-        <section id="features" className="py-24 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Features Tailored for Nepal</h2>
-              <p className="text-gray-600 text-lg">We didn't just translate an app; we built SchoolOS from the ground up to solve the unique challenges of the Nepali education system.</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                    <GraduationCap className="h-6 w-6" />
-                  </div>
-                  <CardTitle>Nepali Grading System</CardTitle>
-                  <CardDescription>SEE & NEB Compatible</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Automatically calculate GPA according to the latest Government of Nepal grading scales. Generate beautiful mark ledgers instantly.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4">
-                    <CreditCard className="h-6 w-6" />
-                  </div>
-                  <CardTitle>Manual QR Fee Collection</CardTitle>
-                  <CardDescription>eSewa, Khalti & Fonepay</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Parents can upload bank deposit slips or QR payment screenshots. Admins can verify and approve payments with one click.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mb-4">
-                    <Calendar className="h-6 w-6" />
-                  </div>
-                  <CardTitle>BS / AD Dual Calendar</CardTitle>
-                  <CardDescription>Native Bikram Sambat Support</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Manage academic years, holidays, and routines natively in BS without dealing with confusing date conversions.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-accent/20 text-accent-foreground rounded-lg flex items-center justify-center mb-4">
-                    <CheckCircle2 className="h-6 w-6" />
-                  </div>
-                  <CardTitle>Smart Attendance</CardTitle>
-                  <CardDescription>Real-time Tracking</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Track student and staff attendance using our mobile app. Instantly send SMS notifications to parents for absentees.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center mb-4">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <CardTitle>Parent & Student Portals</CardTitle>
-                  <CardDescription>Dedicated Access</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Give parents visibility into homework, attendance, notices, and fee dues through a dedicated, easy-to-use portal.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="h-12 w-12 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-4">
-                    <ShieldCheck className="h-6 w-6" />
-                  </div>
-                  <CardTitle>Enterprise Security</CardTitle>
-                  <CardDescription>Role-based Access</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Secure multi-tenant architecture ensuring your school's data is isolated, backed up daily, and strictly permission-controlled.</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Why SchoolOS (Zig-zag) */}
-        <section id="why-us" className="py-24 bg-card">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center gap-12 mb-24">
-              <div className="flex-1 space-y-6">
-                <Badge variant="warning">Efficiency</Badge>
-                <h2 className="text-3xl md:text-4xl font-bold text-primary">Say goodbye to paper registers.</h2>
-                <p className="text-lg text-gray-600">
-                  Teachers spend hours compiling attendance, creating report cards by hand, and managing homework. SchoolOS automates these administrative tasks so teachers can focus on what matters most: teaching.
-                </p>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3 text-gray-700"><CheckCircle2 className="h-5 w-5 text-success" /> Auto-generate Mark Ledgers</li>
-                  <li className="flex items-center gap-3 text-gray-700"><CheckCircle2 className="h-5 w-5 text-success" /> Instant SMS for Attendance</li>
-                  <li className="flex items-center gap-3 text-gray-700"><CheckCircle2 className="h-5 w-5 text-success" /> Centralized Notice Board</li>
-                </ul>
-              </div>
-              <div className="flex-1 bg-gray-100 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-inner relative overflow-hidden">
-                {/* Abstract placeholder for UI graphic */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-accent/10"></div>
-                <div className="relative z-10 w-full max-w-md space-y-4">
-                  <div className="h-12 bg-white rounded-lg shadow w-full animate-pulse"></div>
-                  <div className="h-12 bg-white rounded-lg shadow w-5/6 animate-pulse" style={{ animationDelay: '150ms' }}></div>
-                  <div className="h-12 bg-white rounded-lg shadow w-4/6 animate-pulse" style={{ animationDelay: '300ms' }}></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row-reverse items-center gap-12">
-              <div className="flex-1 space-y-6">
-                <Badge variant="success">Financial Control</Badge>
-                <h2 className="text-3xl md:text-4xl font-bold text-primary">Seamless Fee Management</h2>
-                <p className="text-lg text-gray-600">
-                  Stop chasing pending fees. Send automated reminders to parents via SMS or the app. Approve Fonepay/eSewa deposit slips instantly from your dashboard.
-                </p>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3 text-gray-700"><CheckCircle2 className="h-5 w-5 text-success" /> Automated Fee Invoices</li>
-                  <li className="flex items-center gap-3 text-gray-700"><CheckCircle2 className="h-5 w-5 text-success" /> Pending Dues Reminders</li>
-                  <li className="flex items-center gap-3 text-gray-700"><CheckCircle2 className="h-5 w-5 text-success" /> Revenue Analytics Dashboard</li>
-                </ul>
-              </div>
-              <div className="flex-1 bg-gray-100 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-inner relative overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-tl from-success/10 to-blue-500/10"></div>
-                 <div className="relative z-10 grid grid-cols-2 gap-4 w-full h-full max-h-64">
-                    <div className="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
-                      <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
-                      <div className="h-8 w-3/4 bg-success/20 rounded mt-2"></div>
-                    </div>
-                    <div className="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
-                      <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
-                      <div className="h-8 w-3/4 bg-warning/20 rounded mt-2"></div>
-                    </div>
-                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonial */}
-        <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10">
-            <Image src="/hero-bg.jpg" alt="Background" fill className="object-cover grayscale" />
-          </div>
-          <div className="container mx-auto px-4 text-center relative z-10">
-            <Mountain className="h-12 w-12 text-accent mx-auto mb-8" />
-            <blockquote className="text-2xl md:text-4xl font-medium max-w-4xl mx-auto leading-relaxed">
-              "Switching to SchoolOS Nepal was the best decision for our institution. The native BS calendar and instant Nepali GPA grading has saved our teachers weeks of administrative work during exam season."
-            </blockquote>
-            <div className="mt-8">
-              <p className="font-bold text-lg text-accent">Ramesh Sharma</p>
-              <p className="text-primary-foreground/80">Principal, Valley View Secondary School</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing Tier */}
-        <section id="pricing" className="py-24 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Simple, Transparent Pricing</h2>
-              <p className="text-gray-600 text-lg">Choose the plan that best fits your school's size. No hidden setup fees.</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {/* Starter */}
-              <Card className="border flex flex-col">
-                <CardHeader>
-                  <CardTitle className="text-xl">Starter</CardTitle>
-                  <CardDescription>For small schools and ECDs</CardDescription>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold">रू 15,000</span>
-                    <span className="text-gray-500"> /year</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Up to 300 Students</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Basic Attendance</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Mark Ledger Generation</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Email Support</li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">Choose Starter</Button>
-                </CardFooter>
-              </Card>
-
-              {/* Growth */}
-              <Card className="border-primary border-2 shadow-xl flex flex-col relative transform md:-translate-y-4">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-accent text-accent-foreground px-4 py-1 rounded-full text-sm font-bold shadow-md">
-                  MOST POPULAR
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-xl text-primary">Growth</CardTitle>
-                  <CardDescription>For standard secondary schools</CardDescription>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold text-primary">रू 35,000</span>
-                    <span className="text-gray-500"> /year</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Up to 1,000 Students</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Smart App Attendance</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Manual QR Fee Collection</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Parent Portals</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Priority Phone Support</li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Link href="/onboarding" className="w-full">
-                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Start 14-Day Trial</Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-
-              {/* Enterprise */}
-              <Card className="border flex flex-col">
-                <CardHeader>
-                  <CardTitle className="text-xl">Enterprise</CardTitle>
-                  <CardDescription>For large colleges and chains</CardDescription>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold">Custom</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Unlimited Students</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Custom Domain</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> Multi-branch Management</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> API Access</li>
-                    <li className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 text-primary" /> 24/7 Dedicated Manager</li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">Contact Sales</Button>
-                </CardFooter>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="py-20 bg-accent text-accent-foreground text-center">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Digitize Your School?</h2>
-            <p className="text-lg md:text-xl mb-10 opacity-90 max-w-2xl mx-auto">Join hundreds of schools across Nepal who have modernized their operations with SchoolOS.</p>
-            <Link href="/onboarding">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-10 text-lg shadow-lg">
-                Create Your Account Now
-              </Button>
-            </Link>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-card py-12 border-t text-sm">
-        <div className="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Mountain className="h-5 w-5 text-accent" />
-              <span className="text-lg font-bold text-primary tracking-tight">SchoolOS</span>
+      {/* 9. Expanded Footer */}
+      <footer className="bg-slate-900 py-16 text-sm text-slate-400">
+        <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-8">
+          <div className="col-span-2">
+            <Link href="/" className="flex items-center gap-2 mb-6 group">
+              <div className="bg-gradient-to-br from-blue-600 to-red-600 p-1.5 rounded-[10px]">
+                <Mountain className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-white">SchoolOS</span>
+            </Link>
+            <p className="mb-6 max-w-sm font-medium text-slate-400">Engineered natively for the future of education in Nepal. Replacing outdated software with a modern, unified ecosystem.</p>
+            <div className="flex gap-4 mb-6">
+               <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer"><span className="text-white font-bold">f</span></div>
+               <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer"><span className="text-white font-bold">in</span></div>
             </div>
-            <p className="text-gray-500 mb-4">The modern operating system for schools in Nepal.</p>
-            <p className="text-gray-400">© 2026 SchoolOS Nepal. All rights reserved.</p>
+            <p className="text-slate-500">© 2026 SchoolOS. All rights reserved.</p>
           </div>
           <div>
-            <h4 className="font-semibold text-primary mb-4">Product</h4>
-            <ul className="space-y-2 text-gray-500">
-              <li><Link href="#" className="hover:text-primary">Features</Link></li>
-              <li><Link href="#" className="hover:text-primary">Pricing</Link></li>
-              <li><Link href="#" className="hover:text-primary">Changelog</Link></li>
+            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-xs">Platform</h4>
+            <ul className="space-y-3 font-medium">
+              <li><Link href="#" className="hover:text-white transition-colors">Academic Engine</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Finance Ledger</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Parent Portal</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Push Notifications</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-primary mb-4">Company</h4>
-            <ul className="space-y-2 text-gray-500">
-              <li><Link href="#" className="hover:text-primary">About Us</Link></li>
-              <li><Link href="#" className="hover:text-primary">Contact</Link></li>
-              <li><Link href="#" className="hover:text-primary">Careers</Link></li>
+            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-xs">Resources</h4>
+            <ul className="space-y-3 font-medium">
+              <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">API Reference</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">System Status</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-primary mb-4">Legal</h4>
-            <ul className="space-y-2 text-gray-500">
-              <li><Link href="#" className="hover:text-primary">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-primary">Terms of Service</Link></li>
+            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-xs">Company</h4>
+            <ul className="space-y-3 font-medium">
+              <li><Link href="#" className="hover:text-white transition-colors">About Us</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-xs">Legal</h4>
+            <ul className="space-y-3 font-medium">
+              <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Data Security</Link></li>
             </ul>
           </div>
         </div>
       </footer>
-
     </div>
   );
 }

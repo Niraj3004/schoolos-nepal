@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
-import { BookOpen, Calendar, GraduationCap, Clock } from 'lucide-react';
+import { BookOpen, Calendar, GraduationCap, Clock, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 
 export default function StudentDashboard() {

@@ -43,7 +43,7 @@ export default function AllocationModal({ isOpen, onClose }: { isOpen: boolean; 
   const years = (yearsRes as any)?.data || [];
   const classes = (classesRes as any)?.data || [];
   const subjects = (subjectsRes as any)?.data || [];
-  const teachers = (teachersRes as any)?.data || [];
+  const teachers = (teachersRes as any)?.data?.teachers || [];
   const sections = (sectionsRes as any)?.data || [];
 
   const onSubmit = async (data: FormData) => {

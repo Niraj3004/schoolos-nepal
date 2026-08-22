@@ -51,11 +51,11 @@ export default function ParentDashboard() {
                     <p className="text-sm text-gray-600"><span className="font-medium">Admission No:</span> {child.admissionNumber}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild className="w-full">
-                      <Link href={`/parent/children/${child._id}`}>
+                    <Link href={`/parent/children/${child._id}`} className="w-full">
+                      <Button variant="outline" size="sm" className="w-full flex items-center justify-center">
                         View Details <ArrowRight className="ml-1 h-4 w-4" />
-                      </Link>
-                    </Button>
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

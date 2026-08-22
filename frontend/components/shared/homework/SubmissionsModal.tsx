@@ -42,7 +42,7 @@ export default function SubmissionsModal({ isOpen, onClose, homeworkId }: Submis
   const submissions = (submissionsRes as any)?.data || [];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Student Submissions" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Student Submissions">
       <div className="max-h-[70vh] overflow-y-auto pr-2">
         {isLoading ? (
           <div className="flex justify-center p-8"><Spinner /></div>
