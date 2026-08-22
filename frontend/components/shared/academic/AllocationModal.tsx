@@ -34,17 +34,13 @@ export default function AllocationModal({ isOpen, onClose }: { isOpen: boolean; 
   const { data: subjectsRes } = useQuery({ queryKey: ['subjects'], queryFn: () => api.get('/academic/subjects') });
   const { data: teachersRes } = useQuery({ queryKey: ['teachers'], queryFn: () => api.get('/staff/teachers') });
   
-  const { data: sectionsRes } = useQuery({ 
-    queryKey: ['sections', selectedClassId], 
-    queryFn: () => api.get(`/academic/sections?classId=${selectedClassId}`),
-    enabled: !!selectedClassId
-  });
-
   const years = (yearsRes as any)?.data || [];
   const classes = (classesRes as any)?.data || [];
   const subjects = (subjectsRes as any)?.data || [];
   const teachers = (teachersRes as any)?.data?.teachers || [];
-  const sections = (sectionsRes as any)?.data || [];
+  
+  const selectedClassObj = classes.find((c: any) => c._id === selectedClassId);
+  const sections = selectedClassObj?.sections || [];
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);

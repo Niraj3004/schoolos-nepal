@@ -61,6 +61,15 @@ export const createSection = async (req: Request, res: Response) => {
   return successResponse(res, section, 'Section created successfully', 201);
 };
 
+export const getSections = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { classId } = req.query;
+  const query: any = { schoolId };
+  if (classId) query.classId = classId;
+  const sections = await Section.find(query).populate('classTeacherId', 'name email');
+  return successResponse(res, sections, 'Sections retrieved');
+};
+
 export const updateSection = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
   const { id } = req.params;

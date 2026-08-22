@@ -3,6 +3,7 @@ import {
   createClass, 
   getClasses, 
   createSection, 
+  getSections,
   updateSection, 
   createSubject, 
   getSubjects, 
@@ -49,6 +50,7 @@ router.get('/classes', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorH
 
 // Sections
 router.post('/sections', requireRole(['ADMIN']), validate(createSectionSchema), asyncErrorHandler(createSection));
+router.get('/sections', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHandler(getSections));
 router.patch('/sections/:id', requireRole(['ADMIN']), validate(updateSectionSchema), asyncErrorHandler(updateSection));
 
 // Subjects
