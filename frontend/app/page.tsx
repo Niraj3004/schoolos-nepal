@@ -66,9 +66,16 @@ export default function LandingPage() {
       <main>
         {/* 1. Hero Section (Nepali Vibe + Student Image) */}
         <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-white">
-          {/* Subtle Himalayan/Nepali gradient vibes */}
-          <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-blue-50 via-white to-red-50 -z-10 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 -z-10 mix-blend-multiply"></div>
+          {/* Subtle Himalayan/Nepali gradient vibes and pattern */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50 via-white to-red-50 -z-10 pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] -z-10 mix-blend-multiply pointer-events-none"></div>
+          {/* Decorative Mountains */}
+          <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-0 opacity-[0.03] pointer-events-none">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-[200%] h-[150px] transform -translate-x-1/4">
+              <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,119.45,200,107.56,242.75,100.22,283.47,79.52,321.39,56.44Z" fill="#ef4444"></path>
+              <path d="M0,73.9c8.2-1.2,16.5-2.2,25-3.1C135.5,58,247,40.1,357.7,19.3,472,1.3,588.6-4.5,701,13.6c112.7,18.1,223,54.8,333.6,76.5,56,11,111.4,17.4,165.4,19.7V120H0V73.9Z" fill="#3b82f6" opacity="0.5"></path>
+            </svg>
+          </div>
           
           <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="container mx-auto px-6 z-10 relative">
             <div className="flex flex-col lg:flex-row items-center gap-12">
@@ -76,7 +83,7 @@ export default function LandingPage() {
               {/* Left Content */}
               <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex-1 text-center lg:text-left">
                 <motion.div variants={fadeInUp as any} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-red-100 shadow-sm text-slate-600 text-xs font-semibold mb-8">
-                  <MapPin className="h-4 w-4 text-red-500" />
+                  <Mountain className="h-4 w-4 text-red-500" />
                   Proudly Built in Nepal, for Nepal
                 </motion.div>
                 
@@ -113,10 +120,15 @@ export default function LandingPage() {
               >
                 <div className="relative w-full max-w-lg">
                   <img 
-                    src="/hero1.png" 
+                    src="/hero.avif" 
                     alt="SchoolOS Hero" 
-                    className="object-contain w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] transform hover:scale-105 transition-transform duration-700"
+                    className="object-contain w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] transform hover:scale-105 transition-transform duration-700 relative z-10"
                   />
+                  
+                  {/* Subtle Mountain Backdrop behind the image */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-[0.02] flex items-center justify-center pointer-events-none -z-10">
+                    <Mountain className="w-[120%] h-[120%] text-slate-900" strokeWidth={1} />
+                  </div>
                   
                   {/* Floating badges */}
                   <div className="absolute top-10 -left-6 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-2xl shadow-xl border border-slate-100 z-20 animate-bounce-slow flex items-center gap-3">

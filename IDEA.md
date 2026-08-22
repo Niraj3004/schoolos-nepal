@@ -154,10 +154,18 @@ In Progress:
 Remaining:
 - Phase 11A: Teacher Dashboard (real data from API)
 - Phase 11B: Student Dashboard (attendance %, homework, exams)
-- Phase 11C: Parent Dashboard (per-child stats)
-- Phase 11D: SuperAdmin Dashboard (platform analytics)
-- Phase 11E: Login page polish (show/hide password)
-- Phase 11F: Notices page verification
+- Phase 12: SuperAdmin, Parent, and Admin Polish
+  - Parent portal children view with detailed attendance and progress
+  - SuperAdmin platform analytics and subscription request management
+  - Admin exam management with CRUD and publish controls
+  - Login page visual improvements (show/hide password)
+  - Status: ✅ COMPLETED
+
+- Phase 13: Landing Page Aesthetics (Nepal Vibe)
+  - Enhanced landing page with hero.avif transparent image
+  - Added Nepal-specific visuals (Mountain backdrop, SVG decor)
+  - Removed outdated hero placeholders
+  - Status: ✅ COMPLETED
 
 Problems Found:
 - Teacher dashboard is a complete stub with fake hardcoded data
