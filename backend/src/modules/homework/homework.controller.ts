@@ -111,6 +111,17 @@ export const submitHomework = async (req: Request, res: Response) => {
   return successResponse(res, submission, 'Homework submitted successfully');
 };
 
+export const getSubmissionsForHomework = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+
+  const submissions = await HomeworkSubmission.find({ homeworkId: id, schoolId })
+    .populate('studentId', 'firstName lastName admissionNumber rollNumber')
+    .sort({ submittedAt: -1 });
+
+  return successResponse(res, submissions, 'Submissions retrieved successfully');
+};
+
 export const evaluateSubmission = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
   const { id } = req.params;

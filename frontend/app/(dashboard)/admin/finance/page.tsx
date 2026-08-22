@@ -12,6 +12,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
 import { EmptyState } from '@/components/ui/EmptyState';
+import GenerateInvoiceModal from '@/components/shared/finance/GenerateInvoiceModal';
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell
 } from '@/components/ui/Table';
@@ -132,6 +133,8 @@ export default function AdminFinancePage() {
           </div>
         </CardContent>
       </Card>
+
+      <GenerateInvoiceModal isOpen={showGenerateModal} onClose={() => setShowGenerateModal(false)} />
 
       {/* Table */}
       {isLoading ? (

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createHomework, getClassHomework, deleteHomework, submitHomework, evaluateSubmission } from './homework.controller';
+import { createHomework, getClassHomework, deleteHomework, submitHomework, evaluateSubmission, getSubmissionsForHomework } from './homework.controller';
 import { createMaterial, getMaterials, deleteMaterial } from './material.controller';
 import { validate } from '../../middlewares/validate';
 import { createHomeworkSchema, evaluateSubmissionSchema, createMaterialSchema } from './homework.validation';
@@ -20,6 +20,7 @@ router.get('/class', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHan
 router.delete('/:id', requireRole(['ADMIN', 'TEACHER']), asyncErrorHandler(deleteHomework));
 
 // Submissions
+router.get('/:id/submissions', requireRole(['ADMIN', 'TEACHER']), asyncErrorHandler(getSubmissionsForHomework));
 router.post('/:id/submit', requireRole(['STUDENT']), upload.array('files', 5), asyncErrorHandler(submitHomework));
 router.patch('/submissions/:id/evaluate', requireRole(['TEACHER', 'ADMIN']), validate(evaluateSubmissionSchema), asyncErrorHandler(evaluateSubmission));
 

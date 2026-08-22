@@ -11,13 +11,16 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Plus, BookOpen, Paperclip, Trash2, Calendar, Users, ExternalLink, X } from 'lucide-react';
+import SubmissionsModal from '@/components/shared/homework/SubmissionsModal';
+import { Plus, BookOpen, Paperclip, Trash2, Calendar, Users, ExternalLink, X, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 
 export default function TeacherHomeworkPage() {
   const queryClient = useQueryClient();
   const [toast, setToast] = useState<{ title: string; description?: string; variant: 'success' | 'error' } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [submissionsModalOpen, setSubmissionsModalOpen] = useState(false);
+  const [selectedHomeworkId, setSelectedHomeworkId] = useState<string | null>(null);
   
   // State for filtering viewed homework
   const [filterClassId, setFilterClassId] = useState('');
@@ -168,7 +171,17 @@ export default function TeacherHomeworkPage() {
                   </div>
                 )}
 
-                <div className="mt-auto pt-4 border-t flex justify-end">
+                <div className="mt-auto pt-4 border-t flex justify-end gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      setSelectedHomeworkId(hw._id);
+                      setSubmissionsModalOpen(true);
+                    }}
+                  >
+                    <ListChecks className="w-4 h-4 mr-1" /> Submissions
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -201,6 +214,15 @@ export default function TeacherHomeworkPage() {
           }}
         />
       )}
+
+      <SubmissionsModal 
+        isOpen={submissionsModalOpen} 
+        onClose={() => {
+          setSubmissionsModalOpen(false);
+          setSelectedHomeworkId(null);
+        }} 
+        homeworkId={selectedHomeworkId} 
+      />
     </div>
   );
 }

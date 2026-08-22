@@ -48,10 +48,6 @@ export const generateMonthlyInvoices = async (req: Request, res: Response) => {
   const students = await Student.find({ schoolId, currentClassId: classId, status: 'ENROLLED' });
   if (!students.length) return errorResponse(res, 'BAD_REQUEST', 'No enrolled students found in this class', null, 400);
 
-  // 4. Generate invoices transactionally
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const invoicesToInsert = [];
 
@@ -60,12 +56,13 @@ export const generateMonthlyInvoices = async (req: Request, res: Response) => {
       const counter = await InvoiceCounter.findOneAndUpdate(
         { schoolId, academicYearId },
         { $inc: { sequenceValue: 1 } },
-        { new: true, upsert: true, session }
+        { new: true, upsert: true }
       );
 
       const paddedSeq = counter.sequenceValue.toString().padStart(5, '0');
       // Format: INV-<Year>-<Seq>
-      const invoiceNumber = `INV-2083-${paddedSeq}`; // Note: Year should ideally be dynamic from AcademicYear model, hardcoding 2083 for simplicity as per spec example
+      const currentYear = new Date().getFullYear();
+      const invoiceNumber = `INV-${currentYear}-${paddedSeq}`; 
 
       const discount = discounts[student._id.toString()] || 0;
       const subTotal = structure.totalAmount;
@@ -87,15 +84,10 @@ export const generateMonthlyInvoices = async (req: Request, res: Response) => {
       });
     }
 
-    const invoices = await StudentInvoice.insertMany(invoicesToInsert, { session });
+    const invoices = await StudentInvoice.insertMany(invoicesToInsert);
     
-    await session.commitTransaction();
-    session.endSession();
-
     return successResponse(res, { generatedCount: invoices.length }, 'Monthly invoices generated successfully', 201);
   } catch (error: any) {
-    await session.abortTransaction();
-    session.endSession();
     return errorResponse(res, 'INTERNAL_SERVER_ERROR', error.message, null, 500);
   }
 };
