@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -30,10 +30,21 @@ export default function AcademicConfigurationPage() {
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
   // Queries
+  const queryClient = useQueryClient();
   const { data: yearsData, isLoading: isLoadingYears } = useQuery({
     queryKey: ['academicYears'],
     queryFn: () => api.get('/academic/academic-years'),
   });
+
+  const handleActivateYear = async (id: string) => {
+    try {
+      await api.patch(`/academic/academic-years/${id}/activate`);
+      queryClient.invalidateQueries({ queryKey: ['academicYears'] });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to activate academic year');
+    }
+  };
 
   const { data: termsData, isLoading: isLoadingTerms } = useQuery({
     queryKey: ['terms'],
@@ -116,6 +127,7 @@ export default function AcademicConfigurationPage() {
                         <th className="px-6 py-3">Start Date (BS)</th>
                         <th className="px-6 py-3">End Date (BS)</th>
                         <th className="px-6 py-3">Status</th>
+                        <th className="px-6 py-3 text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -129,6 +141,18 @@ export default function AcademicConfigurationPage() {
                               ? <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Current</span>
                               : <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Past/Future</span>
                             }
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            {!y.isCurrent && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleActivateYear(y._id)}
+                                className="text-primary hover:text-primary hover:bg-primary/10 border-primary/20"
+                              >
+                                Set Active
+                              </Button>
+                            )}
                           </td>
                         </tr>
                       ))}

@@ -12,6 +12,7 @@ import {
   getMyClasses,
   createAcademicYear,
   getAcademicYears,
+  activateAcademicYear,
   createTerm,
   getTerms
 } from './academic.controller';
@@ -39,6 +40,7 @@ router.use(authenticate, requireTenant, requireActiveTenant);
 // Academic Years
 router.post('/academic-years', requireRole(['ADMIN']), validate(createAcademicYearSchema), asyncErrorHandler(createAcademicYear));
 router.get('/academic-years', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHandler(getAcademicYears));
+router.patch('/academic-years/:id/activate', requireRole(['ADMIN']), asyncErrorHandler(activateAcademicYear));
 
 // Terms
 router.post('/terms', requireRole(['ADMIN']), validate(createTermSchema), asyncErrorHandler(createTerm));

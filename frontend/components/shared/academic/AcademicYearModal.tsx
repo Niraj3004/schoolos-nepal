@@ -30,7 +30,12 @@ export default function AcademicYearModal({ isOpen, onClose }: { isOpen: boolean
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      await api.post('/academic/academic-years', data);
+      const payload = {
+        ...data,
+        startDateAD: new Date(data.startDateBS).toISOString(),
+        endDateAD: new Date(data.endDateBS).toISOString(),
+      };
+      await api.post('/academic/academic-years', payload);
       queryClient.invalidateQueries({ queryKey: ['academicYears'] });
       reset();
       onClose();

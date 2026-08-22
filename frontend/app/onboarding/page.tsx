@@ -335,6 +335,7 @@ export default function OnboardingPage() {
                             alt="Platform QR Code" 
                             width={280} 
                             height={280} 
+                            style={{ width: 'auto', height: 'auto' }}
                             className="rounded-2xl relative z-10"
                           />
                         </div>

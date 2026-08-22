@@ -79,13 +79,29 @@ export default function AdminDashboard() {
   }
 
   if (error) {
+    const errorMsg = (error as any)?.data?.message || (error as Error).message;
+    const isMissingAcademicYear = errorMsg?.toLowerCase().includes('academic year');
+
     return (
-      <div className="p-6 bg-red-50 text-red-700 rounded-2xl border border-red-100 flex flex-col items-center justify-center text-center max-w-md mx-auto mt-20">
-        <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-          <Activity className="h-6 w-6 text-red-500" />
+      <div className="p-6 bg-amber-50 text-amber-800 rounded-3xl border border-amber-200 flex flex-col items-center justify-center text-center max-w-lg mx-auto mt-20 shadow-sm">
+        <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm border border-amber-100">
+          <Activity className="h-8 w-8 text-amber-500" />
         </div>
-        <h3 className="text-lg font-bold">Failed to load data</h3>
-        <p className="text-sm mt-1">Please check your connection and try again.</p>
+        <h3 className="text-2xl font-bold text-amber-900 mb-2">
+          {isMissingAcademicYear ? "Welcome to SchoolOS!" : "Dashboard Unavailable"}
+        </h3>
+        <p className="text-amber-700 mb-6">
+          {isMissingAcademicYear 
+            ? "To get started, you need to configure your first Academic Year. This is required before the dashboard can track your school's analytics."
+            : errorMsg || "Failed to load data. Please check your connection and try again."}
+        </p>
+        
+        {isMissingAcademicYear && (
+          <Button onClick={() => window.location.href = '/admin/academic'} className="bg-amber-600 hover:bg-amber-700 text-white border-0 shadow-md h-12 px-8 rounded-xl font-bold">
+            <BookOpen className="mr-2 h-5 w-5" />
+            Set Up Academic Year
+          </Button>
+        )}
       </div>
     );
   }

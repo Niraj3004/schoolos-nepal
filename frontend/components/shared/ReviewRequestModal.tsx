@@ -120,25 +120,29 @@ export default function ReviewRequestModal({ isOpen, onClose, request }: ReviewR
 
         <div className="flex justify-end space-x-3 pt-4 border-t">
           <Button variant="outline" onClick={onClose} disabled={isApproving || isRejecting}>
-            Cancel
+            {request.status === 'PENDING_APPROVAL' ? 'Cancel' : 'Close'}
           </Button>
           
-          <Button 
-            variant="danger" 
-            onClick={handleReject} 
-            disabled={isApproving || isRejecting}
-          >
-            {isRejecting ? <Spinner size="sm" /> : showRejectInput ? "Confirm Rejection" : "Reject"}
-          </Button>
-          
-          {!showRejectInput && (
-            <Button 
-              variant="default" 
-              onClick={handleApprove}
-              disabled={isApproving || isRejecting}
-            >
-              {isApproving ? <Spinner size="sm" /> : "Approve & Activate"}
-            </Button>
+          {request.status === 'PENDING_APPROVAL' && (
+            <>
+              <Button 
+                variant="danger" 
+                onClick={handleReject} 
+                disabled={isApproving || isRejecting}
+              >
+                {isRejecting ? <Spinner size="sm" /> : showRejectInput ? "Confirm Rejection" : "Reject"}
+              </Button>
+              
+              {!showRejectInput && (
+                <Button 
+                  variant="default" 
+                  onClick={handleApprove}
+                  disabled={isApproving || isRejecting}
+                >
+                  {isApproving ? <Spinner size="sm" /> : "Approve & Activate"}
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>

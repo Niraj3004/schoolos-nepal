@@ -24,6 +24,23 @@ export const getAcademicYears = async (req: Request, res: Response) => {
   return successResponse(res, academicYears, 'Academic Years retrieved');
 };
 
+export const activateAcademicYear = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+
+  const year = await AcademicYear.findOne({ _id: id, schoolId });
+  if (!year) return errorResponse(res, 'NOT_FOUND', 'Academic Year not found', null, 404);
+
+  // Deactivate all others
+  await AcademicYear.updateMany({ schoolId }, { isCurrent: false });
+  
+  // Activate the selected one
+  year.isCurrent = true;
+  await year.save();
+
+  return successResponse(res, year, 'Academic Year activated successfully');
+};
+
 export const createTerm = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
   const term = await Term.create({ ...req.body, schoolId });
