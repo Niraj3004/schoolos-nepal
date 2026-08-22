@@ -1,143 +1,201 @@
-# SchoolOS - Project Verification & Roadmap (IDEA.md)
+# SchoolOS Nepal — Project Memory (IDEA.md)
 
-## Current Phase
+_Last updated after full inspection — Phase 11 continuation_
 
-Phase 1 — Full Project Verification
+---
 
 ## Project Overview
 
-SchoolOS is a multi-tenant school management SaaS platform built with:
+SchoolOS Nepal is a multi-tenant School Management SaaS platform.
 
-- **Backend**: Node.js, Express, MongoDB (Mongoose), Zod validation, JWT authentication.
-- **Frontend**: Next.js 14+ (App Router), React, Tailwind CSS, Zustand, React Query, Lucide Icons.
+- **Backend**: Node.js + Express + TypeScript + MongoDB (Mongoose) + Zod validation + JWT
+- **Frontend**: Next.js 16 (App Router) + React + Tailwind CSS + Zustand + TanStack Query + Lucide Icons + Recharts + Framer Motion
+
+---
 
 ## Backend Architecture
 
-### Core Modules
+### Modules & Routes
 
-1. **Auth** (`/auth`): Login, Registration, JWT management.
-2. **SaaS / SuperAdmin** (`/saas`): Multi-tenant registration, SaaS plans, Platform QR settings.
-3. **Tenant** (`/tenant`): School-specific settings, Academic Years, Terms, Houses.
-4. **Academic** (`/academic`): Classes, Sections, Subjects, Teacher Allocations.
-5. **Users** (`/students`, `/parents`, `/staff`): Role-based CRUD.
-6. **Attendance** (`/attendance`): Daily and subject-wise attendance tracking.
-7. **Exams** (`/exams`): Master exams, Marks entry, Report cards.
-8. **Homework** (`/homework`): Assignments, Submissions.
-9. **Finance** (`/finance`): Fee structures, Invoices, Payments.
-10. **Communication** (`/communication`): Notices and messaging.
-11. **Analytics** (`/analytics`): Dashboard metrics.
+| Module       | Route Prefix      | Status    |
+|--------------|-------------------|-----------|
+| Auth         | `/auth`           | ✅ Done    |
+| SaaS         | `/saas`           | ✅ Done    |
+| Tenant       | `/tenant`         | ✅ Done    |
+| Academic     | `/academic`       | ✅ Done    |
+| Students     | `/students`       | ✅ Done    |
+| Parents      | `/parents`        | ✅ Done    |
+| Staff        | `/staff`          | ✅ Done    |
+| Attendance   | `/attendance`     | ✅ Done    |
+| Exams        | `/exams`          | ✅ Done    |
+| Homework     | `/homework`       | ✅ Done    |
+| Finance      | `/finance`        | ✅ Done    |
+| Communication| `/communication`  | ✅ Done    |
+| Analytics    | `/analytics`      | ✅ Done    |
+| Search       | `/search`         | ✅ Done    |
 
-### Authentication & Middleware Flow
+### Auth Flow
+1. `POST /auth/login` → Returns `{ user, accessToken }`
+2. JWT stored in Zustand + localStorage
+3. Middleware chain: `authenticate` → `requireTenant` → `requireActiveTenant` → `requireRole` → `validate` → Controller
 
-1. **Authenticate**: Verifies JWT.
-2. **RequireTenant**: Ensures request belongs to a valid school slug/header.
-3. **RequireActiveTenant**: Checks if school subscription is active.
-4. **RequireRole**: Validates user role (`SUPERADMIN`, `ADMIN`, `TEACHER`, `STUDENT`, `PARENT`).
-5. **Validate**: Zod schema body parsing.
-6. **AsyncErrorHandler**: Wraps controllers.
+### Credential System (Auto-generated)
+- **Students**: Login = `{admissionNumber}@{subdomain}.schoolos.com`, Password = `dobBS` or `Password123!`
+- **Teachers**: Login = `{employeeId}@{subdomain}.schoolos.com`, Password = phone or `Teacher123!`
+- **Parents**: Login = `{primaryPhone}@{subdomain}.schoolos.com`, Password = `Password123!`
+
+---
 
 ## Frontend Architecture
 
-### Role-Based Dashboards
+### Role-Based Pages
 
-- `/superadmin`: SaaS management (Schools, Plans, Settings).
-- `/admin`: School operations (Academics, Students, Teachers, Attendance, Finance, Exams).
-- `/teacher`: Class management (Attendance, Exams, Homework).
-- `/student`: View-only (Attendance, Results, Homework).
-- `/parent`: View-only for linked children (Fees, Results).
+| Role        | Root Path     | Status      |
+|-------------|---------------|-------------|
+| SuperAdmin  | `/superadmin` | ⚠️ Minimal  |
+| Admin       | `/admin`      | ✅ Good      |
+| Teacher     | `/teacher`    | ⚠️ Stub only |
+| Student     | `/student`    | ⚠️ Minimal  |
+| Parent      | `/parent`     | ⚠️ Minimal  |
 
-## Missing Features / Broken Flows Identified (To be fixed in subsequent phases)
+### Existing Pages (Verified)
 
-### Backend
+#### SuperAdmin
+- `/superadmin` — Shows pending subscriptions, active schools count, revenue. Only review/approve requests.
+- `/superadmin/schools` — School list
+- `/superadmin/plans` — SaaS plans
+- `/superadmin/settings` — Platform settings
 
-- Missing API endpoints for Teacher to view specific students' homework submissions.
-- Need to verify if `Finance` invoice generation works correctly with the current academic year.
+#### Admin
+- `/admin` — Full dashboard with analytics, charts, calendar, attendance overview ✅
+- `/admin/students` — Full CRUD (create, list, search, filter, pagination) ✅
+- `/admin/teachers` — Full CRUD (create, list, search, filter, pagination) ✅
+- `/admin/attendance` — Mark attendance with grid UI ✅
+- `/admin/academic` — Classes, Sections, Subjects, Allocations ✅
+- `/admin/exams` — Create exam, list exams (basic) ✅
+- `/admin/finance` — Fee management ✅
 
-### Frontend
+#### Teacher
+- `/teacher` — **STUB** (only shows a fake hardcoded card "Total Activity: 12") ❌
+- `/teacher/attendance` — Full working attendance taking UI ✅
+- `/teacher/exams` — Marks entry ✅
+- `/teacher/homework` — Assignment management ✅
 
-- **Student Dashboard**: The `/student` and `/parent` directories exist but need to be fully fleshed out to connect to the backend APIs (`/attendance/student/:id`, `/exams/report-card/:examId/:id`).
-- **Teacher Dashboard**: `teacher/homework/page.tsx` needs full UI testing to ensure grading works.
-- **Admin Dashboard**: Need to verify if Finance UI connects properly to the backend.
+#### Student
+- `/student` — Minimal (shows class, roll number, gender — no attendance %, no exams, no real data) ⚠️
+- `/student/attendance` — Exists (needs check)
+- `/student/exams` — Exists
+- `/student/homework` — Exists
+- `/student/report-card/[id]` — Exists
 
----
-
-## Roadmap
-
-### Phase 1 — Full Project Verification
-
-- [x] Inspect backend modules
-- [x] Inspect frontend roles
-- [x] Create IDEA.md
-
-### Phase 2 — Backend Fixes (COMPLETED)
-
-- [x] Fix missing `getSubmissionsForHomework` API so Teachers can view submissions.
-- [x] Fix `generateMonthlyInvoices` transaction crash in standalone MongoDB mode.
-- [x] Ensure Finance controllers match UI expectations (removed hardcoded year).
-
-### Phase 3 — Frontend Core Fixes (COMPLETED)
-
-- [x] Ensure Teacher grading workflows (Exams & Homework) are seamless.
-- [x] Ensure Admin Finance (Fee collection) works end-to-end.
-
-### Phase 4 — Frontend Roles (Student & Parent) (COMPLETED)
-
-- [x] Complete `/student` dashboard (View attendance, grades, homework).
-- [x] Complete `/parent` dashboard (View children, pay fees).
-
-### Phase 5 — Complete Integration & Testing (COMPLETED)
-
-- [x] Test Auth -> Admin -> Teacher -> Student data flow.
-
-### Phase 6 — UI/UX & Cleanup (COMPLETED)
+#### Parent
+- `/parent` — Lists children with View Details link ✅ (basic)
+- `/parent/children` — Children list
+- `/parent/children/[id]` — Child detail
+- `/parent/fees` — Fee viewing
 
 ---
 
-## Status Update
+## GAPS FOUND (What needs to be built/fixed)
 
-**CURRENT PHASE:** Phase 8 (Notifications & Reminders)
+### 🔴 CRITICAL GAPS
 
-**COMPLETED:**
+1. **Teacher Dashboard** (`/teacher/page.tsx`) — Complete stub. Shows fake hardcoded number. No real API data, no stats, no upcoming classes, no pending tasks.
 
-- Phase 1 (Verification)
-- Phase 2 (Backend Fixes)
-- Phase 3 (Frontend Core Fixes)
-- Phase 4 (Frontend Roles - Student & Parent)
-- Phase 5 (Complete Integration & Testing)
-- Phase 6 (UI/UX Redesign)
-- Phase 7 (Analytics & Reporting)
+2. **Student Dashboard** (`/student/page.tsx`) — Very minimal. Shows class/roll number/gender/DOB only. Missing:
+   - Attendance percentage stat
+   - Pending homework count
+   - Upcoming exam count
+   - Recent announcements (hardcoded empty state)
+   - Upcoming exams (hardcoded empty state)
 
-**FIXED (Phase 5):**
+3. **Parent Dashboard** (`/parent/page.tsx`) — Only shows children cards, no stats. Missing:
+   - Per-child attendance summary
+   - Pending fees summary
+   - Recent notices
 
-- Reviewed Student and Parent endpoints to ensure inference of `classId` and `sectionId` is robust.
-- Discovered and removed a crashing `mongoose.startSession()` call in `submitBulkMarks` (Teacher Exams API), which would have broken the Teacher grading workflow in standalone MongoDB mode.
-- Verified that the full flow (Admin Setup -> Teacher Grades -> Student Views -> Parent Views) works.
+4. **SuperAdmin Dashboard** (`/superadmin/page.tsx`) — Only shows subscription approval workflow. Missing:
+   - Total schools chart
+   - Revenue analytics
+   - Recent signups
 
-**NEXT PHASE:** Phase 8
+### 🟡 MISSING FEATURES
 
-**NEXT TASK:**
+5. **Login Page** — Functional but plain. No show/hide password toggle. No branding on left side.
 
-- Phase 7 (Analytics & Reporting)
-- Phase 8 (Notifications & Reminders)
-- Phase 9 (Mobile Optimization)
-- Phase 10 (Advanced UI/UX Redesign & Launch Prep)
+6. **Admin Exams Page** — No edit/delete buttons on exam rows. No marks entry link from here.
+
+7. **Admin Finance Page** — Needs verification that fee collection flow works end-to-end.
+
+8. **Notices Page** (`/notices`) — Shared page for all roles. Needs verification.
 
 ---
 
-### Future Phases (7-10)
+## Progress
 
-**Phase 7 — Analytics & Reporting**
+```
+Current Phase: Phase 11 — Complete Dashboard Upgrade
 
-- Add advanced graphs and reporting features for Admins.
+Completed:
+- Phase 1: Full Project Verification
+- Phase 2: Backend Fixes (finance, submissions API)
+- Phase 3: Frontend Core Fixes (teacher grading, finance)
+- Phase 4: Student & Parent Frontend
+- Phase 5: Integration Testing
+- Phase 6: UI/UX Cleanup
+- Phase 7: Analytics & Reporting (Admin dashboard charts)
+- Phase 8: WebSocket notifications system
+- Phase 9: Mobile optimization (responsive layout)
+- Phase 10: Landing page redesign (Nepal Vibe)
 
-**Phase 8 — Notifications & Reminders**
+In Progress:
+- Phase 11: Teacher Dashboard + Student Dashboard upgrade
 
-- Implement SMS/Email notification system for fee dues and absences.
+Remaining:
+- Phase 11A: Teacher Dashboard (real data from API)
+- Phase 11B: Student Dashboard (attendance %, homework, exams)
+- Phase 11C: Parent Dashboard (per-child stats)
+- Phase 11D: SuperAdmin Dashboard (platform analytics)
+- Phase 11E: Login page polish (show/hide password)
+- Phase 11F: Notices page verification
 
-**Phase 9 — Mobile Optimization**
+Problems Found:
+- Teacher dashboard is a complete stub with fake hardcoded data
+- Student dashboard lacks attendance %, homework count, upcoming exams
+- Parent dashboard has no per-child stats summary
+- SuperAdmin dashboard lacks any platform analytics charts
 
-- Ensure all dashboards are fully responsive for mobile devices.
+Problems Fixed:
+- teachers.map() bug in AllocationModal (was paginated object, fixed to .data.teachers)
+- Finance invoice generation transaction crash
+- Teacher grading (submitBulkMarks) session bug
 
-**Phase 10 — Advanced UI/UX Redesign**
+Next Phase: Phase 11
+Next Task: Build Teacher Dashboard with real API data
+```
 
-- Final visual polish, performance optimization.
+---
+
+## API Reference (Key Endpoints Used in Frontend)
+
+```
+GET  /analytics/admin-dashboard   → Admin stats (students, teachers, attendance, fees)
+GET  /analytics/teacher-workload  → Teacher class workload
+GET  /students/me                 → Current student profile
+GET  /parents/my-children         → Parent's linked children
+GET  /academic/allocations/my-classes  → Teacher's allocated classes/subjects
+GET  /attendance/student/:studentId    → Student attendance records
+GET  /exams/my-results            → Student exam results
+GET  /homework/my-assignments     → Student homework list
+GET  /communication/notices       → Notices list
+```
+
+---
+
+## Design System
+
+- **Colors**: Primary blue (`#3b82f6`), Red accent (`#ef4444`), Slate dark sidebar
+- **Font**: System sans-serif
+- **Cards**: Rounded-xl, soft shadows
+- **Layout**: Fixed sidebar (dark slate) + sticky topbar (glassmorphic white)
+- **Theme**: Light mode with white backgrounds, nepal vibe on landing only

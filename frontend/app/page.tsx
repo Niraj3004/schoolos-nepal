@@ -113,7 +113,7 @@ export default function LandingPage() {
               >
                 <div className="relative w-full max-w-lg">
                   <img 
-                    src="/hero.avif" 
+                    src="/hero1.png" 
                     alt="SchoolOS Hero" 
                     className="object-contain w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] transform hover:scale-105 transition-transform duration-700"
                   />

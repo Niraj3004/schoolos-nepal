@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAdminDashboardMetrics, getTeacherWorkloadMetrics } from './analytics.service';
+import { getAdminDashboardMetrics, getTeacherWorkloadMetrics, getTeacherDashboardMetrics } from './analytics.service';
 import { AuditLog } from './auditLog.model';
 import { AcademicYear } from '../academic/academicYear.model';
 import { successResponse, errorResponse } from '../../utils/response';
@@ -33,6 +33,19 @@ export const getTeacherWorkload = async (req: Request, res: Response) => {
 
   return successResponse(res, workload, 'Teacher workload metrics retrieved');
 };
+
+export const getTeacherDashboard = async (req: Request, res: Response) => {
+  const schoolId = new mongoose.Types.ObjectId(req.tenant as string);
+  const teacherUserId = req.user?.userId as string;
+
+  const currentYear = await AcademicYear.findOne({ schoolId, isCurrent: true });
+  if (!currentYear) return errorResponse(res, 'BAD_REQUEST', 'No active academic year found', null, 400);
+
+  const metrics = await getTeacherDashboardMetrics(schoolId, currentYear._id, teacherUserId);
+
+  return successResponse(res, metrics || { totalClasses: 0, totalStudents: 0, totalSubjects: 0, pendingHomework: 0, upcomingExams: [], recentHomework: [], allocations: [], classes: [] }, 'Teacher dashboard metrics retrieved');
+};
+
 
 export const getAuditLogs = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
