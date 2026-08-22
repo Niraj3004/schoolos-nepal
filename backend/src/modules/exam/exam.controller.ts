@@ -19,6 +19,38 @@ export const getExams = async (req: Request, res: Response) => {
   return successResponse(res, exams, 'Exams retrieved');
 };
 
+export const updateExam = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+  const exam = await Exam.findOneAndUpdate(
+    { _id: id, schoolId },
+    { $set: req.body },
+    { new: true, runValidators: true }
+  );
+  if (!exam) return errorResponse(res, 'NOT_FOUND', 'Exam not found', null, 404);
+  return successResponse(res, exam, 'Exam updated');
+};
+
+export const deleteExam = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+  const exam = await Exam.findOneAndDelete({ _id: id, schoolId });
+  if (!exam) return errorResponse(res, 'NOT_FOUND', 'Exam not found', null, 404);
+  // Also remove all mark entries for this exam
+  await MarkEntry.deleteMany({ examId: id, schoolId });
+  return successResponse(res, null, 'Exam deleted');
+};
+
+export const togglePublishExam = async (req: Request, res: Response) => {
+  const schoolId = req.tenant;
+  const { id } = req.params;
+  const exam = await Exam.findOne({ _id: id, schoolId });
+  if (!exam) return errorResponse(res, 'NOT_FOUND', 'Exam not found', null, 404);
+  exam.isPublished = !exam.isPublished;
+  await exam.save();
+  return successResponse(res, exam, exam.isPublished ? 'Exam published' : 'Exam unpublished');
+};
+
 export const submitBulkMarks = async (req: Request, res: Response) => {
   const schoolId = req.tenant;
   const userId = req.user?.userId;

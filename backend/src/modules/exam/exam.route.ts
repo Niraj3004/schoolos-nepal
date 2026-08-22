@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createExam, getExams, submitBulkMarks, getReportCard, getExamMarks } from './exam.controller';
+import { createExam, getExams, updateExam, deleteExam, togglePublishExam, submitBulkMarks, getReportCard, getExamMarks } from './exam.controller';
 import { validate } from '../../middlewares/validate';
 import { createExamSchema, bulkMarkEntrySchema } from './exam.validation';
 import { authenticate } from '../../middlewares/auth';
@@ -12,9 +12,12 @@ const router = Router();
 
 router.use(authenticate, requireTenant, requireActiveTenant);
 
-// Master Exam
+// Master Exam CRUD
 router.post('/', requireRole(['ADMIN']), validate(createExamSchema), asyncErrorHandler(createExam));
 router.get('/', requireRole(['ADMIN', 'TEACHER', 'STUDENT']), asyncErrorHandler(getExams));
+router.patch('/:id', requireRole(['ADMIN']), asyncErrorHandler(updateExam));
+router.delete('/:id', requireRole(['ADMIN']), asyncErrorHandler(deleteExam));
+router.patch('/:id/publish', requireRole(['ADMIN']), asyncErrorHandler(togglePublishExam));
 
 // Marks
 router.post('/marks/bulk', requireRole(['ADMIN', 'TEACHER']), validate(bulkMarkEntrySchema), asyncErrorHandler(submitBulkMarks));

@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 const loginSchema = z.object({
@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subdomain, setSubdomain] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -137,11 +138,19 @@ export default function LoginPage() {
                 </div>
                 <Input 
                   {...register('password')} 
-                  type="password" 
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••" 
-                  className="pl-10"
+                  className="pl-10 pr-10"
                   error={!!errors.password}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
               {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
             </div>
